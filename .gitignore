@@ -1,6 +1,8 @@
 ### Java ###
 # Compiled class file
 *.class
+.settings
+*.swp
 
 # Log file
 *.log
@@ -42,4 +44,7 @@ buildNumber.properties
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
-
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-v][a-z]
+[._]sw[a-p]

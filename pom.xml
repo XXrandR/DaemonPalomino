@@ -8,11 +8,10 @@
   <version>ALPHA1.0</version>
 
   <name>DaemonPalomino</name>
-  <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
   <properties>
-    <main.class>com.gpal.DaemonPalomino.App</main.class> <!-- Replace with your main class -->
+    <main.class>com.gpal.DaemonPalomino.App</main.class>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>17</maven.compiler.release>
   </properties>
@@ -20,19 +19,6 @@
   <dependencyManagement>
 
     <dependencies>
-
-        <dependency>
-            <groupId>com.google.dagger</groupId>
-            <artifactId>dagger</artifactId>
-            <version>2.54</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.36</version>
-            <scope>provided</scope>
-        </dependency>
 
       <dependency>
         <groupId>org.junit</groupId>
@@ -42,11 +28,67 @@
         <scope>import</scope>
       </dependency>
 
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-bom</artifactId>
+			<version>2024.0.1</version> 
+			<type>pom</type>
+			<scope>import</scope>
+		</dependency>
+
     </dependencies>
 
   </dependencyManagement>
 
   <dependencies>
+
+	<dependency>
+        <groupId>io.projectreactor.netty</groupId>
+        <artifactId>reactor-netty-core</artifactId> 
+    </dependency>
+
+	<dependency>
+        <groupId>io.projectreactor.netty</groupId>
+        <artifactId>reactor-netty-http</artifactId>
+    </dependency>
+
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-api</artifactId>
+		<version>2.0.16</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-simple</artifactId>
+		<version>2.0.16</version>
+	</dependency>
+
+    <dependency>
+        <groupId>com.zaxxer</groupId>
+        <artifactId>HikariCP</artifactId>
+        <version>6.2.1</version>
+    </dependency>
+
+    <dependency>
+        <groupId>com.microsoft.sqlserver</groupId>
+        <artifactId>mssql-jdbc</artifactId>
+        <version>12.8.1.jre11</version>
+    </dependency>
+        
+    <dependency>
+        <groupId>com.google.dagger</groupId>
+        <artifactId>dagger</artifactId>
+        <version>2.54</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.18.36</version>
+        <scope>provided</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
@@ -147,5 +189,6 @@
             </plugin>
           </plugins>
         </pluginManagement>
+
   </build>
 </project>

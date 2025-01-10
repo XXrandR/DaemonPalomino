@@ -1,27 +1,42 @@
 package com.gpal.DaemonPalomino;
 
-import java.util.logging.Logger;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.gpal.DaemonPalomino.BaseComponent.CoreComponent;
+import com.gpal.DaemonPalomino.BaseComponent.DaggerCoreComponent;
+import com.gpal.DaemonPalomino.processor.DocumentSender;
 
 /**
  * Daemon palomino
  */
 public class App {
-    private static final Logger logger = Logger.getLogger(App.class.getName());
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
     public static void main(String[] args) {
 
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        if(args.length > 0 && args[0].equals("SERV")){
 
-        executor.scheduleAtFixedRate(() -> {
-            try {
-                logger.info("Task executed");
-            } catch (Exception e) {
-                logger.severe("Exception caught: " + e.getMessage());
-            }
-        }, 0, 5, TimeUnit.SECONDS);
+            // construction of the CoreComponent
+            CoreComponent coreComp = DaggerCoreComponent.builder().build();
+
+            DocumentSender documentSender = coreComp.documentSender();
+
+            documentSender.startSendingDocuments();
+
+            LOGGER.info("Process launched.");
+
+        }else if(args.length > 1 && args[0].equals("ALON")){
+
+            LOGGER.info("Parameter ALON.");
+
+        }else{
+            
+            LOGGER.warn("Parameter unknown.");
+
+        }
 
     }
+
 }

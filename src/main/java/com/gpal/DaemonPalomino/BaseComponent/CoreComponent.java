@@ -8,7 +8,7 @@ import dagger.Component;
 import javax.inject.Singleton;
 
 @Singleton
-@Component(modules = { DocumentSenderModule.class ,DatabaseModule.class, NetworkModule.class })
+@Component(modules = { DocumentSenderModule.class, DatabaseModule.class, NetworkModule.class })
 public interface CoreComponent{
     DocumentSender documentSender();
 }

@@ -22,8 +22,7 @@ public class App {
             CoreComponent coreComp = DaggerCoreComponent.builder().build();
 
             DocumentSender documentSender = coreComp.documentSender();
-
-            documentSender.startSendingDocuments();
+            documentSender.startSendDocuments(10,10,10,10);
 
             LOGGER.info("Process launched.");
 
@@ -31,12 +30,14 @@ public class App {
 
             LOGGER.info("Parameter ALON.");
 
-        }else{
+        }else if(args.length > 1 && args[0].equals("ANUL")){
+            LOGGER.debug("Parameter to ANUL");
+        }else {
             
             LOGGER.warn("Parameter unknown.");
 
         }
 
     }
-
 }
+

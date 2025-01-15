@@ -24,6 +24,7 @@ public class DocumentSender {
     private final ScheduledExecutorService scheduler;
     private DataSource dataSource;
     private Integer sizeBatch;
+    private String locationDocuments;
 
     @Inject
     public DocumentSender(DataSource dataSource, GenerateDocument generateDocument, HttpClientSender httpClientSender) {
@@ -53,10 +54,11 @@ public class DocumentSender {
             Properties properties = new Properties();
             properties.load(inputStream);
             String locationDocuments = properties.getProperty("location.documents");
-            createDirectory(locationDocuments + "/unsigned");
-            createDirectory(locationDocuments + "/signed");
-            createDirectory(locationDocuments + "/pdf");
-            createDirectory(locationDocuments + "/cdr");
+            this.locationDocuments = locationDocuments;
+            //createDirectory(locationDocuments + "/unsigned");
+            //createDirectory(locationDocuments + "/signed");
+            //createDirectory(locationDocuments + "/pdf");
+            //createDirectory(locationDocuments + "/cdr");
         } catch (IOException e) {
             throw new RuntimeException("Failed to load application.properties", e);
         }
@@ -82,7 +84,7 @@ public class DocumentSender {
     private void sendDocuments() {
         try {
             LOGGER.info("Reading documents !!!");
-            generateDocument.generateDocument(sizeBatch, dataSource);
+            generateDocument.generateDocument(sizeBatch, dataSource,locationDocuments);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

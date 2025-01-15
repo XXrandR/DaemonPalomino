@@ -3,12 +3,16 @@ package com.gpal.DaemonPalomino.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Data
+@ToString
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class DBDocument {
     private String NuDocu;
     private String DateIssue;

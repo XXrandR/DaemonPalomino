@@ -11,11 +11,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
+import java.util.Base64;
+import java.security.PrivateKey;
+import javax.security.cert.X509Certificate;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-
+import java.security.Signature;
 import com.gpal.DaemonPalomino.models.DBDocument;
 import com.gpal.DaemonPalomino.models.FirmSignature;
 import com.gpal.DaemonPalomino.models.PendingDocument;
@@ -108,6 +110,37 @@ public class FirmDocument {
                     + document.getNuDocu() + ".xml");
         } catch (Exception ex) {
             log.error("Error writing file...", ex);
+        }
+    }
+
+    /* FROM HERE HELPERS TO SET CORRECTLY */
+    private static java.security.cert.X509Certificate loadCertificate(String pemFile) throws Exception {
+        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+        FileInputStream is = new FileInputStream(pemFile);
+        return (X509Certificate) certFactory.generateCertificate(is);
+    }
+
+    private String generateSignature(String data, PrivateKey privateKey) throws Exception {
+        Signature signature = Signature.getInstance("SHA1withRSA");
+        signature.initSign(privateKey);
+        signature.update(data.getBytes());
+        byte[] signedBytes = signature.sign();
+        return Base64.getEncoder().encodeToString(signedBytes);
+    }
+
+    private String generateDigest(String data) throws Exception {
+        java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-1");
+        md.update(data.getBytes());
+        byte[] digestBytes = md.digest();
+        return Base64.getEncoder().encodeToString(digestBytes);
+    }
+
+    private String getCertificateString(X509Certificate certificate) {
+        try {
+            return Base64.getEncoder().encodeToString(certificate.getEncoded());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return "";
         }
     }
 

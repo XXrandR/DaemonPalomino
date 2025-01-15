@@ -33,7 +33,9 @@
 			<type>pom</type>
 			<scope>import</scope>
 		</dependency>
+
     </dependencies>
+
   </dependencyManagement>
 
   <dependencies>
@@ -42,6 +44,11 @@
   FROM HERE, DEPENDENCIES NEEDED, BY BIZLINKS
   -->
 
+    <dependency>
+        <groupId>org.apache.velocity</groupId>
+        <artifactId>velocity-engine-core</artifactId>
+        <version>2.4.1</version>
+    </dependency>
 	<dependency>                                                
 		<groupId>org.apache.cxf</groupId>                       
 		<artifactId>cxf-rt-frontend-jaxws</artifactId>          
@@ -82,6 +89,17 @@
 		<artifactId>jaxb-impl</artifactId>                      
 		<version>3.0.0</version>                            
 	</dependency>                                          
+
+    <dependency>
+        <groupId>com.sun.xml.ws</groupId>
+        <artifactId>jaxws-rt</artifactId>
+        <version>4.0.3</version>
+    </dependency>
+    <dependency>
+        <groupId>com.sun.xml.ws</groupId>
+        <artifactId>jaxws-tools</artifactId>
+        <version>4.0.3</version>
+    </dependency>
 
   <!--
   END OF DEPENDENCIES NEEDED, BY BIZLINKS
@@ -141,6 +159,28 @@
     </dependency>
 
     <dependency>
+        <groupId>jakarta.jws</groupId>
+        <artifactId>jakarta.jws-api</artifactId>
+        <version>3.0.0</version>
+    </dependency>
+
+    <dependency>
+        <groupId>jakarta.xml.ws</groupId>
+        <artifactId>jakarta.xml.ws-api</artifactId>
+        <version>4.0.2</version>
+    </dependency>
+    <dependency>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>4.0.2</version>
+    </dependency>
+    <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>4.0.5</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
@@ -157,6 +197,27 @@
 
       <plugins>
 
+        <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>3.6.0</version>
+            <executions>
+                <execution>
+                    <id>add-source</id>
+                    <phase>generate-sources</phase>
+                    <goals>
+                        <goal>add-source</goal>
+                    </goals>
+                    <configuration>
+                        <sources>
+                        <source>${project.build.directory}/generated-sources/wsimport</source>
+                        </sources>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+
+
 		<plugin>
 			<groupId>com.sun.xml.ws</groupId>
 			<artifactId>jaxws-maven-plugin</artifactId>
@@ -171,11 +232,12 @@
 			<configuration>
 				<packageName>com.gpal.DaemonPalomino.osebizlinks.wsdl</packageName>
 				<wsdlUrls>
-					<wsdlUrl>http://localhost:8080/ws/countries.wsdl</wsdlUrl>
+                    <wsdlUrl>https://testose2.bizlinks.com.pe/ol-ti-itcpe/billService?wsdl</wsdlUrl>
 				</wsdlUrls>
-				<sourceDestDir>${sourcesDir}</sourceDestDir>
-				<destDir>${classesDir}</destDir>
-				<extension>true</extension>
+                <sourceDestDir>${project.build.directory}/generated-sources/wsimport</sourceDestDir>
+                <destDir>${project.build.directory}/classes</destDir>
+                <extension>true</extension>
+                <xnocompile>true</xnocompile>
 			</configuration>
 		</plugin>
 

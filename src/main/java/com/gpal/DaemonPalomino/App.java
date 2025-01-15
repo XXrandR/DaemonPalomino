@@ -16,28 +16,25 @@ public class App {
 
     public static void main(String[] args) {
 
-        if(args.length > 0 && args[0].equals("SERV")){
-
+        if (args.length > 0 && args[0].equals("SERV")) {
             // construction of the CoreComponent
             CoreComponent coreComp = DaggerCoreComponent.builder().build();
-
             DocumentSender documentSender = coreComp.documentSender();
-            documentSender.startSendDocuments(10,10,10,10);
-
+            // args[1],args[2] -- time then batchSize
+            documentSender.startSendDocuments(Integer.valueOf(args[2]), Integer.valueOf(args[1]),
+                    Integer.valueOf(args[1]), Integer.valueOf(args[1]), Integer.valueOf(args[1]));
             LOGGER.info("Process launched.");
-
-        }else if(args.length > 1 && args[0].equals("ALON")){
+        } else if (args.length > 1 && args[0].equals("ALON")) {
+            // args[1](CO_EMPR),args[1](CO_ORIG),args[1](NRO)
 
             LOGGER.info("Parameter ALON.");
+        } else if (args.length > 1 && args[0].equals("ANUL")) {
 
-        }else if(args.length > 1 && args[0].equals("ANUL")){
             LOGGER.debug("Parameter to ANUL");
-        }else {
-            
-            LOGGER.warn("Parameter unknown.");
+        } else {
 
+            LOGGER.warn("Parameter unknown.");
         }
 
     }
 }
-

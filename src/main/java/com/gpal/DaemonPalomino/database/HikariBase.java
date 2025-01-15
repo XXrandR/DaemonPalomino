@@ -19,7 +19,7 @@ public class HikariBase {
             return conn;
         } catch (Exception e) {
             e.printStackTrace();
-            LOGGER.error("Connected to the database");
+            LOGGER.error("Error connecting to the database", e);
             return null;
         }
     }

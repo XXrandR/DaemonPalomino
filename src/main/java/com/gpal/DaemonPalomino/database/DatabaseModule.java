@@ -15,8 +15,8 @@ public class DatabaseModule {
     public DataSource provideHikariConfig() {
         HikariConfig config = new HikariConfig();
         config.setDataSourceClassName("com.microsoft.sqlserver.jdbc.SQLServerDataSource");
-        config.addDataSourceProperty("url",
-                "jdbc:sqlserver://172.16.10.200:1433;database=Empresa;encrypt=false;trustServerCertificate=true");
+        //config.addDataSourceProperty("url","jdbc:sqlserver://172.16.10.200:1433;database=Empresa;encrypt=false;trustServerCertificate=true");
+        config.addDataSourceProperty("url","jdbc:sqlserver://172.16.20.8\\TPALOMINOSQL;database=Empresa;encrypt=false;trustServerCertificate=true");
         config.addDataSourceProperty("user", "sa");
         config.addDataSourceProperty("password", "palomino.123");
         config.setMaximumPoolSize(10);
@@ -26,10 +26,10 @@ public class DatabaseModule {
         return new HikariDataSource(config);
     }
 
-    @Provides
-    @Singleton
-    public HikariBase provideHiraki(DataSource dataSource) {
-        return new HikariBase(dataSource);
-    }
+    //@Provides
+    //@Singleton
+    //public HikariBase provideHiraki(DataSource dataSource) {
+    //    return new HikariBase(dataSource);
+    //}
 
 }

@@ -7,41 +7,46 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 import com.gpal.DaemonPalomino.builders.FirmDocument;
 import com.gpal.DaemonPalomino.builders.GenerateDocument;
-import com.gpal.DaemonPalomino.database.HikariBase;
+import com.gpal.DaemonPalomino.models.FirmSignature;
 import com.gpal.DaemonPalomino.network.HttpClientSender;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class DocumentSender {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentSender.class);
     private final HttpClientSender httpClientSender;
-    private final GenerateDocument generateDocument;
+    private final GenerateDocument documentGenerator;
     private final ScheduledExecutorService scheduler;
     private DataSource dataSource;
     private Integer sizeBatch;
     private String locationDocuments;
+    private final FirmDocument firmDocument;
 
     @Inject
-    public DocumentSender(DataSource dataSource, GenerateDocument generateDocument, HttpClientSender httpClientSender) {
+    public DocumentSender(FirmDocument firmDocument,DataSource dataSource, GenerateDocument generateDocument, HttpClientSender httpClientSender) {
         this.dataSource = dataSource;
         this.httpClientSender = httpClientSender;
-        this.generateDocument = generateDocument;
+        this.documentGenerator = generateDocument;
         int numCores = Runtime.getRuntime().availableProcessors();
         this.scheduler = Executors.newScheduledThreadPool(numCores);
+        this.firmDocument = firmDocument;
     }
 
     public static void createDirectory(String path) {
         File directory = new File(path);
         if (!directory.exists()) {
             directory.mkdirs();
-            System.out.println("Directory created: " + path);
+            log.info("Directory created: " + path);
         } else {
-            System.out.println("Directory already exists: " + path);
+            log.info("Directory already exists: " + path);
         }
     }
 
@@ -55,10 +60,10 @@ public class DocumentSender {
             properties.load(inputStream);
             String locationDocuments = properties.getProperty("location.documents");
             this.locationDocuments = locationDocuments;
-            //createDirectory(locationDocuments + "/unsigned");
-            //createDirectory(locationDocuments + "/signed");
-            //createDirectory(locationDocuments + "/pdf");
-            //createDirectory(locationDocuments + "/cdr");
+            createDirectory(locationDocuments + "/unsigned");
+            createDirectory(locationDocuments + "/signed");
+            createDirectory(locationDocuments + "/pdf");
+            createDirectory(locationDocuments + "/cdr");
         } catch (IOException e) {
             throw new RuntimeException("Failed to load application.properties", e);
         }
@@ -84,7 +89,8 @@ public class DocumentSender {
     private void sendDocuments() {
         try {
             LOGGER.info("Reading documents !!!");
-            generateDocument.generateDocument(sizeBatch, dataSource,locationDocuments);
+            List<FirmSignature> documentsPending = documentGenerator.generateDocument(sizeBatch, dataSource,locationDocuments);
+            List<?> documentsFirmed = firmDocument.signDocument(documentsPending);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

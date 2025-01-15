@@ -1,16 +1,13 @@
 package com.gpal.DaemonPalomino.processor;
 
-import java.util.Properties;
-
 import javax.sql.DataSource;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
-
+import com.gpal.DaemonPalomino.builders.FirmDocument;
 import com.gpal.DaemonPalomino.builders.GenerateDocument;
 import com.gpal.DaemonPalomino.network.HttpClientSender;
 import dagger.Module;
 import dagger.Provides;
-import jakarta.inject.Named;
 
 @Module
 public class DocumentSenderModule {
@@ -37,9 +34,14 @@ public class DocumentSenderModule {
     }
 
     @Provides
-    public DocumentSender provideDocumentSender(DataSource dataSource, GenerateDocument generateDocument,
+    public FirmDocument provideFirmDocument(VelocityEngine velocityEngine) {
+        return new FirmDocument(velocityEngine);
+    }
+
+    @Provides
+    public DocumentSender provideDocumentSender(FirmDocument firmDocument,DataSource dataSource, GenerateDocument generateDocument,
             HttpClientSender httpClient) {
-        return new DocumentSender(dataSource, generateDocument, httpClient);
+        return new DocumentSender(firmDocument,dataSource, generateDocument, httpClient);
     }
 
 }

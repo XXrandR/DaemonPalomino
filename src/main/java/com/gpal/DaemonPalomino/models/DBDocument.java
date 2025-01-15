@@ -2,25 +2,31 @@ package com.gpal.DaemonPalomino.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 @ToString
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DBDocument {
+public class DBDocument extends FirmSignature {
+    
+	//protected String DigestValue;
+	//protected String SignatureValue;
+	//protected String Certificate;
+	//
     private String NuDocu;
     private String DateIssue;
     private String TimeIssue;
     private String DueDate;
     private String DocumentTypeId;
     private String CurrencyTypeId;
-    private String PurchaseOrder;
     private String CompanyID;
     private String CompanyName;
     private String DistrictId;
@@ -47,7 +53,4 @@ public class DBDocument {
     private String NameProduct;
     private String InternalId;
     private String ItemPrice;
-	private String DigestValue;
-	private String SignatureValue;
-	private String Certificate;
 }

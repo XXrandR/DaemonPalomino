@@ -41,7 +41,7 @@ public class GenerateDocument {
                 documentsToFirm.add(daa);
             }
         });
-        log.info("The size: " + documentBrws.toString());
+        log.debug("The size: " + documentBrws.toString());
         return documentsToFirm;
     }
 
@@ -49,9 +49,8 @@ public class GenerateDocument {
         try (java.io.FileWriter fileWriter = new java.io.FileWriter(
                 location + document.getCompanyID() + document.getNuDocu() + ".xml")) {
             fileWriter.write(writer.toString());
-            System.out
-                    .println("Generated " + location + document.getCompanyID()
-                            + document.getNuDocu() + ".xml");
+            log.info("Generated " + location + document.getCompanyID()
+                    + document.getNuDocu() + ".xml");
         } catch (Exception ex) {
             log.error("Error writing file...", ex);
         }
@@ -63,7 +62,7 @@ public class GenerateDocument {
         input.add(pendingDocument.getTI_DOCU());
         input.add(pendingDocument.getCO_EMPR());
         input.add(pendingDocument.getCO_ORIG());
-        log.info("Generating xml for {},{},{},{}", pendingDocument.getNU_DOCU(), pendingDocument.getTI_DOCU(),
+        log.debug("Generating xml for {},{},{},{}", pendingDocument.getNU_DOCU(), pendingDocument.getTI_DOCU(),
                 pendingDocument.getCO_EMPR(), pendingDocument.getCO_ORIG());
 
         location = location.concat("/unsigned/");
@@ -75,10 +74,10 @@ public class GenerateDocument {
 
             if (dbDocuments != null) {
                 if (dbDocuments.size() > 0) {
-                    log.info("DOCUMENTS BEING FOUND: {}", dbDocuments.toString());
+                    log.debug("DOCUMENTS BEING FOUND: {}", dbDocuments.toString());
                     DBDocument document = dbDocuments.get(0);
                     VelocityContext context = new VelocityContext();
-                    log.info("DEBUG OF DIGEST GEN DOCU: {}", document.getDigestValue());
+                    log.debug("DEBUG OF DIGEST GEN DOCU: {}", document.getDigestValue());
                     context.put("document", document);
                     Template template = velocityEngine.getTemplate("/templates/TBDocument.vm");
                     StringWriter writer = new StringWriter();
@@ -87,7 +86,7 @@ public class GenerateDocument {
 
                     return dbDocuments.get(0);
                 } else {
-                    log.info("DOCUMENTS NOT FOUND: {},{},{},{}", pendingDocument.getNU_DOCU(),
+                    log.debug("DOCUMENTS NOT FOUND: {},{},{},{}", pendingDocument.getNU_DOCU(),
                             pendingDocument.getTI_DOCU(),
                             pendingDocument.getCO_EMPR(), pendingDocument.getCO_ORIG());
                     return null;

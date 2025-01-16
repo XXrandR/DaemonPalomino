@@ -26,10 +26,4 @@ public class DatabaseModule {
         return new HikariDataSource(config);
     }
 
-    //@Provides
-    //@Singleton
-    //public HikariBase provideHiraki(DataSource dataSource) {
-    //    return new HikariBase(dataSource);
-    //}
-
 }

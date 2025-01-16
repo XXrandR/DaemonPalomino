@@ -39,9 +39,9 @@ public class DocumentSenderModule {
     }
 
     @Provides
-    public DocumentSender provideDocumentSender(FirmDocument firmDocument,DataSource dataSource, GenerateDocument generateDocument,
+    public DocumentScheduler provideDocumentSender(FirmDocument firmDocument, DataSource dataSource, GenerateDocument generateDocument,
             HttpClientSender httpClient) {
-        return new DocumentSender(firmDocument,dataSource, generateDocument, httpClient);
+        return new DocumentScheduler(firmDocument,dataSource, generateDocument, httpClient);
     }
 
 }

@@ -16,11 +16,10 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DBDocument extends FirmSignature {
-    
+
 	//protected String DigestValue;
 	//protected String SignatureValue;
 	//protected String Certificate;
-	//
     private String NuDocu;
     private String DateIssue;
     private String TimeIssue;
@@ -53,4 +52,5 @@ public class DBDocument extends FirmSignature {
     private String NameProduct;
     private String InternalId;
     private String ItemPrice;
+
 }

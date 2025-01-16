@@ -1,7 +1,5 @@
 package com.gpal.DaemonPalomino.processor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ScheduledExecutorService;
 import java.io.File;
@@ -23,9 +21,8 @@ import com.gpal.DaemonPalomino.network.HttpClientSender;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class DocumentSender {
+public class DocumentScheduler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentSender.class);
     private final HttpClientSender httpClientSender;
     private final GenerateDocument documentGenerator;
     private final ScheduledExecutorService scheduler;
@@ -35,7 +32,7 @@ public class DocumentSender {
     private final FirmDocument firmDocument;
 
     @Inject
-    public DocumentSender(FirmDocument firmDocument, DataSource dataSource, GenerateDocument generateDocument,
+    public DocumentScheduler(FirmDocument firmDocument, DataSource dataSource, GenerateDocument generateDocument,
             HttpClientSender httpClientSender) {
         this.dataSource = dataSource;
         this.httpClientSender = httpClientSender;
@@ -49,15 +46,15 @@ public class DocumentSender {
         File directory = new File(path);
         if (!directory.exists()) {
             directory.mkdirs();
-            log.info("Directory created: " + path);
+            log.debug("Directory created: " + path);
         } else {
-            log.info("Directory already exists: " + path);
+            log.debug("Directory already exists: " + path);
         }
     }
 
     public void createFolders() {
         // set location of unsigned,signed,pdf, and cdr
-        try (InputStream inputStream = DocumentSender.class.getClassLoader()
+        try (InputStream inputStream = DocumentScheduler.class.getClassLoader()
                 .getResourceAsStream("application.properties")) {
             if (inputStream == null)
                 throw new RuntimeException("Unable to find application.properties");
@@ -87,12 +84,13 @@ public class DocumentSender {
         scheduler.scheduleWithFixedDelay(this::valAnulatedDocuments, 1, timeValidateAnulated, TimeUnit.SECONDS);
 
         // specific time
-        //scheduleFixedTime(this::sendSummaries, Date.from(Instant.now().plusSeconds(5)));
+        scheduleFixedTime(this::sendSummaries, Date.from(Instant.now().plusSeconds(5)));
     }
 
     public void scheduleFixedTime(Runnable runnable, Date time) {
         class Helper extends TimerTask {
             public static int i = 0;
+
             @Override
             public void run() {
                 log.info("Timer ran " + ++i);
@@ -101,20 +99,19 @@ public class DocumentSender {
         }
         Timer timer = new Timer();
         TimerTask timerTask = new Helper();
-        timer.schedule(timerTask, time, 24 * 60 * 60 * 1000);
+        timer.schedule(timerTask, time, 24 * 60 * 60 * 1000); // to execute every 24 hours
     }
 
-    // TODO:
-    // - Generate a folder by day in each folder appropiatedly
-    // - Obtain documents
-    // - Generate XML Unsigned
-    // - Send to sign
     private void generateAndFirmDocuments() {
         try {
-            LOGGER.info("Reading documents !!!");
+            log.debug("Reading documents !!!");
             List<FirmSignature> documentsPending = documentGenerator.generateDocument(sizeBatch, dataSource,
                     locationDocuments);
-            firmDocument.signDocument(documentsPending);
+            if (!documentsPending.isEmpty()) {
+                firmDocument.signDocument(documentsPending);
+            } else {
+                log.info("No documents pending to firm.");
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -123,7 +120,7 @@ public class DocumentSender {
     private void sendSummaries() {
         try {
             // bs.getStatus("");
-            LOGGER.info("Send summaries documents !!!");
+            log.info("Send summaries documents !!!");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -132,7 +129,7 @@ public class DocumentSender {
     private void sendDocumentsNotBol() {
         try {
             // bs.getStatus("");
-            LOGGER.info("Validate documents !!!");
+            log.info("Validate documents !!!");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -141,7 +138,7 @@ public class DocumentSender {
     private void sendAnulatedDocuments() {
         try {
             // bs.sendSummary("", null);
-            LOGGER.info("Send Anulated documents !!!");
+            log.info("Send Anulated documents !!!");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -150,7 +147,7 @@ public class DocumentSender {
     private void valAnulatedDocuments() {
         try {
             // bs.sendPack("", null);
-            LOGGER.info("Validating Anulated documents !!!");
+            log.info("Validating Anulated documents !!!");
         } catch (Exception ex) {
             ex.printStackTrace();
         }

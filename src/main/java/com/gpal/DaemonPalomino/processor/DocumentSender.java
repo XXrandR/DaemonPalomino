@@ -90,8 +90,7 @@ public class DocumentSender {
         try {
             LOGGER.info("Reading documents !!!");
             List<FirmSignature> documentsPending = documentGenerator.generateDocument(sizeBatch, dataSource,locationDocuments);
-            List<?> documentsFirmed = firmDocument.signDocument(documentsPending);
-            anoetjm.enviardocuments(documentsFirmed);
+            firmDocument.signDocument(documentsPending);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

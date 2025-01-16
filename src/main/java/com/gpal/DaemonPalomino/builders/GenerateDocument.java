@@ -26,7 +26,6 @@ public class GenerateDocument {
     }
 
     public List<FirmSignature> generateDocument(int sizeBatch, DataSource dataSource, String location) {
-
         List<Object> input = new ArrayList<>();
         input.add(sizeBatch);
         input.add("001"); // for only BOL
@@ -37,7 +36,10 @@ public class GenerateDocument {
 
         List<FirmSignature> documentsToFirm = new ArrayList<>();
         documentBrws.forEach(data -> {
-            documentsToFirm.add(generateXMLUnsigned(dataSource, data, location));
+            FirmSignature daa = generateXMLUnsigned(dataSource, data, location);
+            if (daa != null) {
+                documentsToFirm.add(daa);
+            }
         });
         log.info("The size: " + documentBrws.toString());
         return documentsToFirm;
@@ -56,12 +58,13 @@ public class GenerateDocument {
     }
 
     private FirmSignature generateXMLUnsigned(DataSource dataSource, PendingDocument pendingDocument, String location) {
-        log.info("Generating xml for {}", pendingDocument.getNU_DOCU());
         List<Object> input = new ArrayList<>();
         input.add(pendingDocument.getNU_DOCU());
         input.add(pendingDocument.getTI_DOCU());
         input.add(pendingDocument.getCO_EMPR());
         input.add(pendingDocument.getCO_ORIG());
+        log.info("Generating xml for {},{},{},{}", pendingDocument.getNU_DOCU(), pendingDocument.getTI_DOCU(),
+                pendingDocument.getCO_EMPR(), pendingDocument.getCO_ORIG());
 
         location = location.concat("/unsigned/");
 
@@ -86,24 +89,15 @@ public class GenerateDocument {
 
         } else if (pendingDocument.getTI_DOCU().equals("FAC")) {
 
-            List<DBDocument> dbDocuments = DataUtil.executeProcedure(dataSource, "EXEC SP_OBT_DOCU ?,?,?,?", input,
-                    DBDocument.class);
-
-            DBDocument document = dbDocuments.get(0);
+            log.info("NOT YET IMPLEMENTED...{},{}", pendingDocument.getTI_DOCU(), pendingDocument.getNU_DOCU());
 
         } else if (pendingDocument.getTI_DOCU().equals("NCR")) {
 
-            List<DBDocument> dbDocuments = DataUtil.executeProcedure(dataSource, "EXEC SP_OBT_DOCU ?,?,?,?", input,
-                    DBDocument.class);
-
-            DBDocument document = dbDocuments.get(0);
+            log.info("NOT YET IMPLEMENTED...{},{}", pendingDocument.getTI_DOCU(), pendingDocument.getNU_DOCU());
 
         } else if (pendingDocument.getTI_DOCU().equals("NCD")) {
 
-            List<DBDocument> dbDocuments = DataUtil.executeProcedure(dataSource, "EXEC SP_OBT_DOCU ?,?,?,?", input,
-                    DBDocument.class);
-
-            DBDocument document = dbDocuments.get(0);
+            log.info("NOT YET IMPLEMENTED...{},{}", pendingDocument.getTI_DOCU(), pendingDocument.getNU_DOCU());
 
         } else {
             log.info("Tipo de documento no identificado...");

@@ -75,6 +75,7 @@ public class FirmDocument {
 
     private void generateXMLSigned(DBDocument document, String nameTempl) {
         VelocityContext context = new VelocityContext();
+        log.info("DEBUG OF DIGEST FIRM DOCU: {}",document.getDigestValue());
         context.put("document", document);
         Template template = velocityEngine.getTemplate("/templates/" + nameTempl);
         StringWriter writer = new StringWriter();

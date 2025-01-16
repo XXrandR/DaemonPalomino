@@ -9,7 +9,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 @ToString
 @Getter
 @Setter

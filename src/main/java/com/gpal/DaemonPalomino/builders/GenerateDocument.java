@@ -50,7 +50,7 @@ public class GenerateDocument {
                 location + document.getCompanyID() + document.getNuDocu() + ".xml")) {
             fileWriter.write(writer.toString());
             System.out
-                    .println("Generated " + location + document.getDateIssue() + document.getCompanyID()
+                    .println("Generated " + location + document.getCompanyID()
                             + document.getNuDocu() + ".xml");
         } catch (Exception ex) {
             log.error("Error writing file...", ex);
@@ -74,18 +74,25 @@ public class GenerateDocument {
                     DBDocument.class);
 
             if (dbDocuments != null) {
+                if (dbDocuments.size() > 0) {
+                    log.info("DOCUMENTS BEING FOUND: {}", dbDocuments.toString());
+                    DBDocument document = dbDocuments.get(0);
+                    VelocityContext context = new VelocityContext();
+                    log.info("DEBUG OF DIGEST GEN DOCU: {}", document.getDigestValue());
+                    context.put("document", document);
+                    Template template = velocityEngine.getTemplate("/templates/TBDocument.vm");
+                    StringWriter writer = new StringWriter();
+                    template.merge(context, writer);
+                    generateFile(document, writer, location);
 
-                log.info("DOCUMENTS BEING FOUND: {}", dbDocuments.toString());
-                DBDocument document = dbDocuments.get(0);
-                VelocityContext context = new VelocityContext();
-                context.put("document", document);
-                Template template = velocityEngine.getTemplate("/templates/TBDocument.vm");
-                StringWriter writer = new StringWriter();
-                template.merge(context, writer);
-
-                generateFile(document, writer, location);
+                    return dbDocuments.get(0);
+                } else {
+                    log.info("DOCUMENTS NOT FOUND: {},{},{},{}", pendingDocument.getNU_DOCU(),
+                            pendingDocument.getTI_DOCU(),
+                            pendingDocument.getCO_EMPR(), pendingDocument.getCO_ORIG());
+                    return null;
+                }
             }
-            return dbDocuments.get(0);
 
         } else if (pendingDocument.getTI_DOCU().equals("FAC")) {
 
@@ -100,7 +107,9 @@ public class GenerateDocument {
             log.info("NOT YET IMPLEMENTED...{},{}", pendingDocument.getTI_DOCU(), pendingDocument.getNU_DOCU());
 
         } else {
+
             log.info("Tipo de documento no identificado...");
+
         }
         return null;
     }

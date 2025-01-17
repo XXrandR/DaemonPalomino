@@ -1,28 +1,36 @@
 package com.gpal.DaemonPalomino.builders;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.Security;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Base64;
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.util.List;
-import java.util.Properties;
-import java.util.Base64;
-import java.security.PrivateKey;
-import java.security.Security;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-import java.security.Signature;
-import com.gpal.DaemonPalomino.models.DBDocument;
+
 import com.gpal.DaemonPalomino.models.FirmSignature;
+import com.gpal.DaemonPalomino.models.GenericDocument;
+import com.gpal.DaemonPalomino.models.TicketDocument;
+
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,15 +75,15 @@ public class FirmDocument {
 
         // then generate the files, accordingly
         documentsToFirm.forEach(item -> {
-            if (item instanceof DBDocument) {
-                generateXMLSigned((DBDocument) item, "TBDocument.vm");
+            if (item instanceof TicketDocument ticketDocument) {
+                generateXMLSigned(ticketDocument, "xml/pasajes/ticket.vm");
             }
         });
     }
 
-    private void generateXMLSigned(DBDocument document, String nameTempl) {
+    private <GD extends GenericDocument> void generateXMLSigned(GD document, String nameTempl) {
         VelocityContext context = new VelocityContext();
-        log.debug("DEBUG OF DIGEST FIRM DOCU: {}",document.getDigestValue());
+        log.debug("DEBUG OF DIGEST FIRM DOCU: {}", document.getDigestValue());
         context.put("document", document);
         Template template = velocityEngine.getTemplate("/templates/" + nameTempl);
         StringWriter writer = new StringWriter();
@@ -83,11 +91,12 @@ public class FirmDocument {
         generateFile(document, writer, locationDocuments);
     }
 
-    private void generateFile(DBDocument document, StringWriter writer, String location) {
+    private <GD extends GenericDocument>  void generateFile(GD document, StringWriter writer, String location) {
         try (java.io.FileWriter fileWriter = new java.io.FileWriter(
-                location + document.getCompanyID() + document.getNuDocu() + ".xml")) {
+                location + document.getCompanyID() + "-" + document.getDocumentTypeId() + "-" + document.getNuDocu()
+                        + ".xml")) {
             fileWriter.write(writer.toString());
-            log.info("Generated " + location + document.getCompanyID() + document.getNuDocu() + ".xml");
+            log.info("Generated " + location + document.getCompanyID() + "-" + document.getDocumentTypeId() + "-" + document.getNuDocu() + ".xml");
         } catch (Exception ex) {
             log.error("Error writing file...", ex);
         }
@@ -112,7 +121,7 @@ public class FirmDocument {
             signature.update(data.getBytes());
             byte[] signedBytes = signature.sign();
             return Base64.getEncoder().encodeToString(signedBytes);
-        } catch (Exception ex) {
+        } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException ex) {
             ex.printStackTrace();
             return "";
         }
@@ -124,7 +133,7 @@ public class FirmDocument {
             md.update(data.getBytes());
             byte[] digestBytes = md.digest();
             return Base64.getEncoder().encodeToString(digestBytes);
-        } catch (Exception ex) {
+        } catch (NoSuchAlgorithmException ex) {
             ex.printStackTrace();
             return "";
         }
@@ -133,7 +142,7 @@ public class FirmDocument {
     private String getCertificateString(X509Certificate certificate) {
         try {
             return Base64.getEncoder().encodeToString(certificate.getEncoded());
-        } catch (Exception ex) {
+        } catch (CertificateEncodingException ex) {
             ex.printStackTrace();
             return "";
         }
@@ -150,12 +159,10 @@ public class FirmDocument {
 
             while ((bouncyCastleResult = pemParser.readObject()) != null) {
                 if (bouncyCastleResult instanceof X509CertificateHolder) {
-                    continue;
-                } else if (bouncyCastleResult instanceof PrivateKeyInfo) {
-                    info = (PrivateKeyInfo) bouncyCastleResult;
+                } else if (bouncyCastleResult instanceof PrivateKeyInfo privateKeyInfo) {
+                    info = privateKeyInfo;
                     break;
-                } else if (bouncyCastleResult instanceof PEMKeyPair) {
-                    PEMKeyPair keys = (PEMKeyPair) bouncyCastleResult;
+                } else if (bouncyCastleResult instanceof PEMKeyPair keys) {
                     info = keys.getPrivateKeyInfo();
                     break;
                 } else {

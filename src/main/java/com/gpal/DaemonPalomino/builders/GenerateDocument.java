@@ -4,21 +4,26 @@ package com.gpal.DaemonPalomino.builders;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.sql.DataSource;
+
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import com.gpal.DaemonPalomino.models.DBDocument;
+
 import com.gpal.DaemonPalomino.models.FirmSignature;
+import com.gpal.DaemonPalomino.models.GenericDocument;
 import com.gpal.DaemonPalomino.models.PendingDocument;
+import com.gpal.DaemonPalomino.models.TicketDocument;
 import com.gpal.DaemonPalomino.utils.DataUtil;
-import javax.sql.DataSource;
+
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class GenerateDocument {
 
-    private VelocityEngine velocityEngine;
+    private final VelocityEngine velocityEngine;
 
     @Inject
     public GenerateDocument(VelocityEngine velocityEngine) {
@@ -45,11 +50,12 @@ public class GenerateDocument {
         return documentsToFirm;
     }
 
-    private void generateFile(DBDocument document, StringWriter writer, String location) {
+    private <GD extends GenericDocument> void generateFile(GD document, StringWriter writer, String location) {
         try (java.io.FileWriter fileWriter = new java.io.FileWriter(
-                location + document.getCompanyID() + document.getNuDocu() + ".xml")) {
+                location + document.getCompanyID() + "-" + document.getDocumentTypeId() + "-" + document.getNuDocu()
+                        + ".xml")) {
             fileWriter.write(writer.toString());
-            log.info("Generated " + location + document.getCompanyID()
+            log.info("Generated " + location + document.getCompanyID() + "-" + document.getDocumentTypeId() + "-"
                     + document.getNuDocu() + ".xml");
         } catch (Exception ex) {
             log.error("Error writing file...", ex);
@@ -67,48 +73,39 @@ public class GenerateDocument {
 
         location = location.concat("/unsigned/");
 
-        if (pendingDocument.getTI_DOCU().equals("BOL")) {
+        switch (pendingDocument.getTI_DOCU()) {
+            case "BOL" -> {
+                List<TicketDocument> dbDocuments = DataUtil.executeProcedure(dataSource, "EXEC SP_OBT_DOCU ?,?,?,?",
+                        input,
+                        TicketDocument.class);
+                if (dbDocuments != null) {
+                    if (dbDocuments.isEmpty() == false) {
+                        log.debug("DOCUMENTS BEING FOUND: {}", dbDocuments.toString());
+                        TicketDocument document = dbDocuments.get(0);
+                        VelocityContext context = new VelocityContext();
+                        log.debug("DEBUG OF DIGEST GEN DOCU: {}", document.getDigestValue());
+                        context.put("document", document);
+                        Template template = velocityEngine.getTemplate("/templates/xml/pasajes/ticket.vm");
+                        StringWriter writer = new StringWriter();
+                        template.merge(context, writer);
+                        generateFile(document, writer, location);
 
-            List<DBDocument> dbDocuments = DataUtil.executeProcedure(dataSource, "EXEC SP_OBT_DOCU ?,?,?,?", input,
-                    DBDocument.class);
-
-            if (dbDocuments != null) {
-                if (dbDocuments.size() > 0) {
-                    log.debug("DOCUMENTS BEING FOUND: {}", dbDocuments.toString());
-                    DBDocument document = dbDocuments.get(0);
-                    VelocityContext context = new VelocityContext();
-                    log.debug("DEBUG OF DIGEST GEN DOCU: {}", document.getDigestValue());
-                    context.put("document", document);
-                    Template template = velocityEngine.getTemplate("/templates/TBDocument.vm");
-                    StringWriter writer = new StringWriter();
-                    template.merge(context, writer);
-                    generateFile(document, writer, location);
-
-                    return dbDocuments.get(0);
-                } else {
-                    log.debug("DOCUMENTS NOT FOUND: {},{},{},{}", pendingDocument.getNU_DOCU(),
-                            pendingDocument.getTI_DOCU(),
-                            pendingDocument.getCO_EMPR(), pendingDocument.getCO_ORIG());
-                    return null;
+                        return dbDocuments.get(0);
+                    } else {
+                        log.debug("DOCUMENTS NOT FOUND: {},{},{},{}", pendingDocument.getNU_DOCU(),
+                                pendingDocument.getTI_DOCU(),
+                                pendingDocument.getCO_EMPR(), pendingDocument.getCO_ORIG());
+                        return null;
+                    }
                 }
             }
-
-        } else if (pendingDocument.getTI_DOCU().equals("FAC")) {
-
-            log.info("NOT YET IMPLEMENTED...{},{}", pendingDocument.getTI_DOCU(), pendingDocument.getNU_DOCU());
-
-        } else if (pendingDocument.getTI_DOCU().equals("NCR")) {
-
-            log.info("NOT YET IMPLEMENTED...{},{}", pendingDocument.getTI_DOCU(), pendingDocument.getNU_DOCU());
-
-        } else if (pendingDocument.getTI_DOCU().equals("NCD")) {
-
-            log.info("NOT YET IMPLEMENTED...{},{}", pendingDocument.getTI_DOCU(), pendingDocument.getNU_DOCU());
-
-        } else {
-
-            log.info("Tipo de documento no identificado...");
-
+            case "FAC" ->
+                log.info("NOT YET IMPLEMENTED...{},{}", pendingDocument.getTI_DOCU(), pendingDocument.getNU_DOCU());
+            case "NCR" ->
+                log.info("NOT YET IMPLEMENTED...{},{}", pendingDocument.getTI_DOCU(), pendingDocument.getNU_DOCU());
+            case "NCD" ->
+                log.info("NOT YET IMPLEMENTED...{},{}", pendingDocument.getTI_DOCU(), pendingDocument.getNU_DOCU());
+            default -> log.info("Tipo de documento no identificado...");
         }
         return null;
     }

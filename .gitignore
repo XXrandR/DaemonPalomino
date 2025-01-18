@@ -1,7 +1,10 @@
 #because of test
+.idea/
+.mvn/
 data/
 MYDOCUMENTXML.xml
 XSD/
+document.zip
 Session.vim
 ### Java ###
 # Compiled class file

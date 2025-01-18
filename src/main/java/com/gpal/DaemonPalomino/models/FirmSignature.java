@@ -5,8 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public abstract class FirmSignature {
-    protected String DigestValue;
-    protected String SignatureValue;
-    protected String Certificate;
+public class FirmSignature {
+    private String DigestValue;
+    private String SignatureValue;
+    private String Certificate;
 }

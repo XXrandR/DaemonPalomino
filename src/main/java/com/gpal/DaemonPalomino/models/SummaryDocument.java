@@ -1,5 +1,7 @@
 package com.gpal.DaemonPalomino.models;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,4 +22,6 @@ public class SummaryDocument extends FirmSignature {
     private String IssueDate;
     private String CompanyId;
     private String CompanyName;
+    @ToString.Exclude
+    List<DetSummaryDocument> documents;
 }

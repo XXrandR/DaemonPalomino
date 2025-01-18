@@ -18,6 +18,8 @@ import com.gpal.DaemonPalomino.builders.FirmDocument;
 import com.gpal.DaemonPalomino.builders.GenerateDocument;
 import com.gpal.DaemonPalomino.models.FirmSignature;
 import com.gpal.DaemonPalomino.network.HttpClientSender;
+import com.gpal.DaemonPalomino.utils.ChronoUtils;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -84,22 +86,7 @@ public class DocumentScheduler {
         scheduler.scheduleWithFixedDelay(this::valAnulatedDocuments, 1, timeValidateAnulated, TimeUnit.SECONDS);
 
         // specific time
-        scheduleFixedTime(this::sendSummaries, Date.from(Instant.now().plusSeconds(5)));
-    }
-
-    public void scheduleFixedTime(Runnable runnable, Date time) {
-        class Helper extends TimerTask {
-            public static int i = 0;
-
-            @Override
-            public void run() {
-                log.info("Timer ran " + ++i);
-                runnable.run();
-            }
-        }
-        Timer timer = new Timer();
-        TimerTask timerTask = new Helper();
-        timer.schedule(timerTask, time, 24 * 60 * 60 * 1000); // to execute every 24 hours
+        ChronoUtils.scheduleFixedTime(this::sendSummaries, Date.from(Instant.now().plusSeconds(5)));
     }
 
     private void generateAndFirmDocuments() {

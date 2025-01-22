@@ -1,4 +1,4 @@
-package com.gpal.DaemonPalomino.models;
+package com.gpal.DaemonPalomino.models.firm;
 
 import lombok.Getter;
 import lombok.Setter;

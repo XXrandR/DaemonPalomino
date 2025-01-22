@@ -12,6 +12,6 @@ import lombok.ToString;
 public class PendingDocument{
     private String NU_DOCU;
     private String TI_DOCU;
-    private String CO_EMPR;
     private String CO_ORIG;
+    private String CO_EMPR;
 }

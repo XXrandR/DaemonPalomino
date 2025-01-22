@@ -1,7 +1,7 @@
 package com.gpal.DaemonPalomino.models;
 
 import java.math.BigDecimal;
-
+import com.gpal.DaemonPalomino.models.generic.GenericDocument;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

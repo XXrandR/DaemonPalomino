@@ -1,5 +1,7 @@
 package com.gpal.DaemonPalomino.models;
 
+import com.gpal.DaemonPalomino.models.firm.FirmSignature;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

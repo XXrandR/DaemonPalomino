@@ -5,12 +5,13 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import com.gpal.DaemonPalomino.builders.FirmDocument;
 import com.gpal.DaemonPalomino.builders.GenerateDocument;
-import com.gpal.DaemonPalomino.network.HttpClientSender;
+import com.gpal.DaemonPalomino.builders.SummaryDocumentProcess;
+import com.gpal.DaemonPalomino.network.WsService;
 import dagger.Module;
 import dagger.Provides;
 
 @Module
-public class DocumentSenderModule {
+public class DocumentProcessorModule {
 
     private VelocityEngine velocityEngine;
 
@@ -39,9 +40,18 @@ public class DocumentSenderModule {
     }
 
     @Provides
-    public DocumentScheduler provideDocumentSender(FirmDocument firmDocument, DataSource dataSource, GenerateDocument generateDocument,
-            HttpClientSender httpClient) {
-        return new DocumentScheduler(firmDocument,dataSource, generateDocument, httpClient);
+    public SummaryDocumentProcess provideSummaryDocumentProcess(VelocityEngine velocityEngine){
+        return new SummaryDocumentProcess(velocityEngine);
+    }
+    
+    @Provides
+    public DocumentScheduler provideDocumentSender(SummaryDocumentProcess sDocumentProcess,FirmDocument firmDocument, DataSource dataSource, GenerateDocument generateDocument,WsService wsService) {
+        return new DocumentScheduler(sDocumentProcess,firmDocument,dataSource, generateDocument,wsService);
+    }
+
+    @Provides
+    public DocumentUnique provideDocumentUnique(GenerateDocument generateDocument,DataSource dataSource, FirmDocument firmDocument) {
+        return new DocumentUnique(generateDocument,dataSource,firmDocument);
     }
 
 }

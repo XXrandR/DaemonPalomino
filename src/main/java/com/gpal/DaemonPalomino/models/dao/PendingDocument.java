@@ -1,4 +1,4 @@
-package com.gpal.DaemonPalomino.models;
+package com.gpal.DaemonPalomino.models.dao;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

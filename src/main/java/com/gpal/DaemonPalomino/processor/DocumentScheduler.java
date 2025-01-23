@@ -2,8 +2,6 @@ package com.gpal.DaemonPalomino.processor;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ScheduledExecutorService;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
@@ -16,7 +14,7 @@ import com.gpal.DaemonPalomino.builders.SummaryDocumentProcess;
 import com.gpal.DaemonPalomino.models.firm.FirmSignature;
 import com.gpal.DaemonPalomino.network.WsService;
 import com.gpal.DaemonPalomino.utils.ChronoUtils;
-
+import com.gpal.DaemonPalomino.utils.FolderManagement;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -41,42 +39,25 @@ public class DocumentScheduler {
         this.scheduler = Executors.newScheduledThreadPool(numCores);
         this.firmDocument = firmDocument;
         this.wService = wsService;
-    }
 
-    public static void createDirectory(String path) {
-        File directory = new File(path);
-        if (!directory.exists()) {
-            directory.mkdirs();
-            log.debug("Directory created: " + path);
-        } else {
-            log.debug("Directory already exists: " + path);
-        }
-    }
+        FolderManagement.createFolders();
 
-    public void createFolders() {
-        // set location of unsigned,signed,pdf,and cdr
         try (InputStream inputStream = DocumentScheduler.class.getClassLoader()
                 .getResourceAsStream("application.properties")) {
-            if (inputStream == null)
-                throw new RuntimeException("Unable to find application.properties");
+            // for location
             Properties properties = new Properties();
             properties.load(inputStream);
-            String locationDocuments = properties.getProperty("location.documents");
-            this.locationDocuments = locationDocuments;
-            createDirectory(locationDocuments + "/unsigned");
-            createDirectory(locationDocuments + "/signed");
-            createDirectory(locationDocuments + "/pdf");
-            createDirectory(locationDocuments + "/cdr");
-        } catch (IOException e) {
+            locationDocuments = properties.getProperty("location.documents");
+        } catch (Exception e) {
             throw new RuntimeException("Failed to load application.properties", e);
         }
+
     }
 
     public void startSendDocuments(int sizeBatch, int firmInterval, int validationInterval,
             int anulationSendInterval,
             int anulationValidateInterval, int summaryHour, int summaryMin) {
         this.sizeBatch = sizeBatch;
-        createFolders();
 
         // this needs to work every 10 min or by preference
         scheduler.scheduleWithFixedDelay(this::generateAndFirmDocuments, 0, firmInterval, TimeUnit.MINUTES);
@@ -87,7 +68,7 @@ public class DocumentScheduler {
         // this needs to work every 30 min or by preference
         scheduler.scheduleWithFixedDelay(this::valAnulatedDocuments, 1, anulationValidateInterval, TimeUnit.MINUTES);
 
-        // this works every 24 hours at 12 pm
+        // this works every 24 hours, depending on the hour and min
         ChronoUtils.scheduleFixedTime(this::sendSummaries, summaryHour, summaryMin);
     }
 
@@ -116,7 +97,7 @@ public class DocumentScheduler {
             if (!fSignature.isEmpty()) {
                 firmDocument.signDocument(dataSource, fSignature);
                 log.info("Sending documents...");
-                wService.sendDocuments(locationDocuments, fSignature);
+                wService.sendSummarie(locationDocuments + "/unsigned/", fSignature);
             } else {
                 log.info("No resumes left to firm.");
             }

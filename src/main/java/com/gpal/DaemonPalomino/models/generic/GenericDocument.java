@@ -22,4 +22,5 @@ public class GenericDocument extends FirmSignature {
     private String TI_DOCU;
     private String CO_EMPR;
     private String CO_ORIG;
+
 }

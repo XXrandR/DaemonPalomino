@@ -8,8 +8,8 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import com.gpal.DaemonPalomino.models.firm.FirmSignature;
-import com.gpal.DaemonPalomino.models.PendingDocument;
-import com.gpal.DaemonPalomino.models.TicketDocument;
+import com.gpal.DaemonPalomino.models.dao.PendingDocument;
+import com.gpal.DaemonPalomino.models.BolDocument;
 import com.gpal.DaemonPalomino.utils.DataUtil;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -42,12 +42,14 @@ public class GenerateDocument {
         return documentsToFirm;
     }
 
-    public List<FirmSignature> generateDocumentUnique(DataSource dataSource,String nu_docu,String ti_docu, String co_empr, String location) {
+    public List<FirmSignature> generateDocumentUnique(DataSource dataSource, String nu_docu, String ti_docu,
+            String co_empr, String location) {
         List<Object> input = new ArrayList<>();
         input.add(co_empr);
         input.add(nu_docu);
         // Obtaining restant documents
-        List<PendingDocument> documentBrws = DataUtil.executeProcedure(dataSource, "EXEC SP_TTHELP_DOCU01 0,105,?,?", input,
+        List<PendingDocument> documentBrws = DataUtil.executeProcedure(dataSource, "EXEC SP_TTHELP_DOCU01 0,105,?,?",
+                input,
                 PendingDocument.class);
         List<FirmSignature> documentsToFirm = new ArrayList<>();
         documentBrws.forEach(data -> {
@@ -71,15 +73,16 @@ public class GenerateDocument {
         location = location.concat("/unsigned/");
         switch (pendingDocument.getTI_DOCU()) {
             case "BOL" -> {
-                List<TicketDocument> dbDocuments = DataUtil.executeProcedure(dataSource, "EXEC SP_OBT_DOCU ?,?,?,?",
+                List<BolDocument> dbDocuments = DataUtil.executeProcedure(dataSource, "EXEC SP_OBT_DOCU ?,?,?,?",
                         input,
-                        TicketDocument.class);
+                        BolDocument.class);
                 if (dbDocuments != null) {
                     if (dbDocuments.isEmpty() == false) {
                         log.debug("DOCUMENTS BEING FOUND: {}", dbDocuments.toString());
-                        TicketDocument document = dbDocuments.get(0);
+                        BolDocument document = dbDocuments.get(0);
                         VelocityContext context = new VelocityContext();
-                        log.debug("DEBUG OF DIGEST GEN DOCU: {} (if it's null it's correct)", document.getDigestValue());
+                        log.debug("DEBUG OF DIGEST GEN DOCU: {} (if it's null it's correct)",
+                                document.getDigestValue());
                         context.put("document", document);
                         Template template = velocityEngine.getTemplate("/templates/xml/pasajes/ticket.vm");
                         StringWriter writer = new StringWriter();

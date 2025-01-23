@@ -29,9 +29,9 @@ import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import com.gpal.DaemonPalomino.models.firm.FirmSignature;
 import com.gpal.DaemonPalomino.models.generic.GenericDocument;
-import com.gpal.DaemonPalomino.models.PendingDocument;
+import com.gpal.DaemonPalomino.models.dao.PendingDocument;
 import com.gpal.DaemonPalomino.models.SummaryDocument;
-import com.gpal.DaemonPalomino.models.TicketDocument;
+import com.gpal.DaemonPalomino.models.BolDocument;
 import com.gpal.DaemonPalomino.utils.DataUtil;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -63,7 +63,6 @@ public class FirmDocument {
         } catch (Exception e) {
             throw new RuntimeException("Failed to load application.properties", e);
         }
-
     }
 
     public void signDocument(DataSource dataSource, List<FirmSignature> documentsToFirm) {
@@ -82,7 +81,7 @@ public class FirmDocument {
 
         // then generate the files, accordingly
         documentsToFirm.forEach(item -> {
-            if (item instanceof TicketDocument ticketDocument) {
+            if (item instanceof BolDocument ticketDocument) {
                 generateXMLSigned(ticketDocument, "xml/pasajes/ticket.vm");
                 // making the register of the data being firmed
                 List<Object> input = new ArrayList<>();

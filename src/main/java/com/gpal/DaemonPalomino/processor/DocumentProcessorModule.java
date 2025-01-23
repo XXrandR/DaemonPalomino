@@ -19,7 +19,6 @@ public class DocumentProcessorModule {
     public VelocityEngine provideVelocityEngine() {
         if (velocityEngine == null) {
             velocityEngine = new VelocityEngine();
-
             velocityEngine.setProperty(RuntimeConstants.RESOURCE_LOADER, "class,file");
             velocityEngine.setProperty("class.resource.loader.class",
                     "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
@@ -29,6 +28,7 @@ public class DocumentProcessorModule {
         return velocityEngine;
     }
 
+    // modules basic
     @Provides
     public GenerateDocument provideGenerateDocument(VelocityEngine velocityEngine) {
         return new GenerateDocument(velocityEngine);
@@ -43,15 +43,21 @@ public class DocumentProcessorModule {
     public SummaryDocumentProcess provideSummaryDocumentProcess(VelocityEngine velocityEngine){
         return new SummaryDocumentProcess(velocityEngine);
     }
-    
+
+    // face to the App
     @Provides
-    public DocumentScheduler provideDocumentSender(SummaryDocumentProcess sDocumentProcess,FirmDocument firmDocument, DataSource dataSource, GenerateDocument generateDocument,WsService wsService) {
+    public DocumentScheduler provideDocumentScheduler(SummaryDocumentProcess sDocumentProcess,FirmDocument firmDocument, DataSource dataSource, GenerateDocument generateDocument,WsService wsService) {
         return new DocumentScheduler(sDocumentProcess,firmDocument,dataSource, generateDocument,wsService);
     }
 
     @Provides
     public DocumentUnique provideDocumentUnique(GenerateDocument generateDocument,DataSource dataSource, FirmDocument firmDocument) {
         return new DocumentUnique(generateDocument,dataSource,firmDocument);
+    }
+
+    @Provides
+    public DocumentAnulate provideDocumentAnulate(DataSource dataSource,WsService wsService) {
+        return new DocumentAnulate(dataSource, wsService);
     }
 
 }

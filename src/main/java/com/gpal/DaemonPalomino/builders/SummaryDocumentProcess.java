@@ -28,10 +28,10 @@ public class SummaryDocumentProcess {
     public List<FirmSignature> sendDocuments(int sizeBatch, DataSource dataSource, String location) {
         List<Object> input = new ArrayList<>();
         input.add("");
-        input.add("BOL");
-        input.add("005");
-        input.add("105");
-        input.add("GEN_SUM");
+        input.add("BOL"); // this of course it's vital
+        input.add("005"); // for summaries this is not considered equally
+        input.add("105"); // and this allows for every table to be join
+        input.add("GEN_SUM"); // this is vital for the type of GEN_SUM
 
         List<DetSummaryDocument> documentBrws = DataUtil.executeProcedure(dataSource, "EXEC SP_OBT_DOCU ?,?,?,?,?",
                 input, DetSummaryDocument.class);

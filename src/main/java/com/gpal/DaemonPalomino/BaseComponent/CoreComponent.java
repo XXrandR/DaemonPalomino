@@ -2,6 +2,7 @@ package com.gpal.DaemonPalomino.BaseComponent;
 
 import com.gpal.DaemonPalomino.processor.DocumentScheduler;
 import com.gpal.DaemonPalomino.processor.DocumentUnique;
+import com.gpal.DaemonPalomino.processor.DocumentAnulate;
 import com.gpal.DaemonPalomino.processor.DocumentProcessorModule;
 import com.gpal.DaemonPalomino.database.DatabaseModule;
 import com.gpal.DaemonPalomino.network.NetworkModule;
@@ -13,4 +14,5 @@ import javax.inject.Singleton;
 public interface CoreComponent{
     DocumentScheduler documentScheduler();
     DocumentUnique documentUnique();
+    DocumentAnulate documentAnulate();
 }

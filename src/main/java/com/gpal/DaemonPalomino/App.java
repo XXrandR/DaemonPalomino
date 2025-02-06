@@ -14,7 +14,6 @@ public class App {
 
         // construction of the CoreComponent
         CoreComponent coreComp = DaggerCoreComponent.builder().build();
-
         if (args.length > 0 && args[0].equals("SERVER")) {
             handleServCommand(args, coreComp);
         } else if (args.length > 1 && args[0].equals("UNIQUE")) {
@@ -44,7 +43,7 @@ public class App {
             int summaryHour = Integer.parseInt(args[6]);
             int summaryMin = Integer.parseInt(args[7]);
 
-            coreComp.documentScheduler().startSendDocuments(
+            coreComp.daemonScheduler().startSendDocuments(
                     sizeBatch,
                     firmInterval,
                     validationInterval,
@@ -104,7 +103,7 @@ public class App {
             String nu_docu = String.valueOf(args[1]);
             String ti_docu = String.valueOf(args[2]);
             String co_empr = String.valueOf(args[3]);
-            coreComp.documentUnique().sendDocument(nu_docu, ti_docu, co_empr);
+            coreComp.documentUnique().sendDocument(nu_docu, ti_docu, co_empr,null);
             log.info("Document sending process finished successfully.");
         } catch (Exception ex) {
             log.error("Invalid number format in arguments. Please provide integer values.");

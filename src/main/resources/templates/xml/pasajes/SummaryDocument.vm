@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <SummaryDocuments xmlns="urn:sunat:names:specification:ubl:peru:schema:xsd:SummaryDocuments-1" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:sac="urn:sunat:names:specification:ubl:peru:schema:xsd:SunatAggregateComponents-1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
 #if( ! $document.DigestValue )
   <ext:UBLExtensions>
     <ext:UBLExtension>
@@ -18,7 +17,6 @@
 	</ext:UBLExtension>
   </ext:UBLExtensions>
 #end
-
   <cbc:UBLVersionID>2.0</cbc:UBLVersionID>
   <cbc:CustomizationID>1.1</cbc:CustomizationID>
   <cbc:ID>$document.NumSummary</cbc:ID>
@@ -29,7 +27,7 @@
     <cbc:Note>FACTURALO</cbc:Note>
     <cac:SignatoryParty>
       <cac:PartyIdentification>
-        <cbc:ID>$document.CompanyId</cbc:ID>
+        <cbc:ID>$document.CompanyRuc</cbc:ID>
       </cac:PartyIdentification>
       <cac:PartyName>
         <cbc:Name><![CDATA[$document.CompanyName]]></cbc:Name>
@@ -42,7 +40,7 @@
     </cac:DigitalSignatureAttachment>
   </cac:Signature>
   <cac:AccountingSupplierParty>
-    <cbc:CustomerAssignedAccountID>$document.CompanyId</cbc:CustomerAssignedAccountID>
+    <cbc:CustomerAssignedAccountID>$document.CompanyRuc</cbc:CustomerAssignedAccountID>
     <cbc:AdditionalAccountID>6</cbc:AdditionalAccountID>
     <cac:Party>
       <cac:PartyLegalEntity>
@@ -50,7 +48,6 @@
       </cac:PartyLegalEntity>
     </cac:Party>
   </cac:AccountingSupplierParty>
-
 #foreach ($item in $document.documents)
   <sac:SummaryDocumentsLine>
     <cbc:LineID>$item.LineID</cbc:LineID>
@@ -69,9 +66,9 @@
       <cbc:InstructionID>01</cbc:InstructionID>
     </sac:BillingPayment>
     <cac:TaxTotal>
-      <cbc:TaxAmount currencyID="$item.CoMone">$item.ImIgv</cbc:TaxAmount>
+      <cbc:TaxAmount currencyID="$item.CoMone">0.00</cbc:TaxAmount>
       <cac:TaxSubtotal>
-        <cbc:TaxAmount currencyID="$item.CoMone">$item.ImIgv</cbc:TaxAmount>
+        <cbc:TaxAmount currencyID="$item.CoMone">0.00</cbc:TaxAmount>
         <cac:TaxCategory>
           <cac:TaxScheme>
             <cbc:ID>1000</cbc:ID>
@@ -83,5 +80,4 @@
     </cac:TaxTotal>
   </sac:SummaryDocumentsLine>
 #end
-
 </SummaryDocuments>

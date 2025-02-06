@@ -20,26 +20,32 @@ public class SummaryDocument extends GenericDocument {
     private String IssueDate;
     private String CompanyId;
     private String CompanyName;
+    private String CompanyRuc;
     List<DetSummaryDocument> documents;
 
-    public SummaryDocument(String NumSummary, String DateRefe, String IssueDate, String CompanyId, String CompanyName) {
+    public SummaryDocument(String NumSummary, String DateRefe, String IssueDate, String CompanyId, String CompanyName,
+            String CompanyRuc) {
         this.NumSummary = NumSummary;
         this.DateRefe = DateRefe;
         this.IssueDate = IssueDate;
         this.CompanyId = CompanyId;
         this.CompanyName = CompanyName;
+        this.CompanyRuc = CompanyRuc;
     }
 
-	@Override
+    @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         SummaryDocument that = (SummaryDocument) o;
         return Objects.equals(NumSummary, that.NumSummary) &&
-               Objects.equals(DateRefe, that.DateRefe) &&
-               Objects.equals(IssueDate, that.IssueDate) &&
-               Objects.equals(CompanyId, that.CompanyId) &&
-               Objects.equals(CompanyName, that.CompanyName);
+                Objects.equals(DateRefe, that.DateRefe) &&
+                Objects.equals(IssueDate, that.IssueDate) &&
+                Objects.equals(CompanyId, that.CompanyId) &&
+                Objects.equals(CompanyName, that.CompanyName) &&
+                Objects.equals(CompanyRuc, that.CompanyRuc);
     }
 
     @Override
@@ -47,4 +53,3 @@ public class SummaryDocument extends GenericDocument {
         return Objects.hash(NumSummary, DateRefe, IssueDate, CompanyId, CompanyName);
     }
 }
-

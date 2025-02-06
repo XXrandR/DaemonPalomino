@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import com.gpal.DaemonPalomino.processor.DocumentScheduler;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -12,7 +11,7 @@ public class FolderManagement {
 
     public static void createFolders() {
         // set location of unsigned,signed,pdf,and cdr
-        try (InputStream inputStream = DocumentScheduler.class.getClassLoader()
+        try (InputStream inputStream = FolderManagement.class.getClassLoader()
                 .getResourceAsStream("application.properties")) {
             if (inputStream == null)
                 throw new RuntimeException("Unable to find application.properties");

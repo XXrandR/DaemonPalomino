@@ -1,7 +1,7 @@
 package com.gpal.DaemonPalomino.processor;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
@@ -10,15 +10,17 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 import com.gpal.DaemonPalomino.builders.FirmDocument;
 import com.gpal.DaemonPalomino.builders.GenerateDocument;
+import com.gpal.DaemonPalomino.builders.PdfDocument;
 import com.gpal.DaemonPalomino.builders.SummaryDocumentProcess;
 import com.gpal.DaemonPalomino.models.firm.FirmSignature;
+import com.gpal.DaemonPalomino.network.ReactorServer;
 import com.gpal.DaemonPalomino.network.WsService;
 import com.gpal.DaemonPalomino.utils.ChronoUtils;
 import com.gpal.DaemonPalomino.utils.FolderManagement;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class DocumentScheduler {
+public class DaemonScheduler {
 
     private final GenerateDocument documentGenerator;
     private final ScheduledExecutorService scheduler;
@@ -28,10 +30,15 @@ public class DocumentScheduler {
     private final FirmDocument firmDocument;
     private final SummaryDocumentProcess sDocumentProcess;
     private final WsService wService;
+    private final PdfDocument pdfDocument;
+    private final ReactorServer reactorServer;
 
     @Inject
-    public DocumentScheduler(SummaryDocumentProcess sDocumentProcess, FirmDocument firmDocument, DataSource dataSource,
-            GenerateDocument generateDocument, WsService wsService) {
+    public DaemonScheduler(ReactorServer reactorServer, SummaryDocumentProcess sDocumentProcess,
+            FirmDocument firmDocument, DataSource dataSource,
+            GenerateDocument generateDocument, WsService wsService, PdfDocument pdfDocument) {
+
+        this.reactorServer = reactorServer;
         this.dataSource = dataSource;
         this.documentGenerator = generateDocument;
         this.sDocumentProcess = sDocumentProcess;
@@ -39,10 +46,9 @@ public class DocumentScheduler {
         this.scheduler = Executors.newScheduledThreadPool(numCores);
         this.firmDocument = firmDocument;
         this.wService = wsService;
-
+        this.pdfDocument = pdfDocument;
         FolderManagement.createFolders();
-
-        try (InputStream inputStream = DocumentScheduler.class.getClassLoader()
+        try (InputStream inputStream = DaemonScheduler.class.getClassLoader()
                 .getResourceAsStream("application.properties")) {
             // for location
             Properties properties = new Properties();
@@ -67,9 +73,14 @@ public class DocumentScheduler {
         scheduler.scheduleWithFixedDelay(this::sendAnulatedDocuments, 1, anulationSendInterval, TimeUnit.MINUTES);
         // this needs to work every 30 min or by preference
         scheduler.scheduleWithFixedDelay(this::valAnulatedDocuments, 1, anulationValidateInterval, TimeUnit.MINUTES);
-
         // this works every 24 hours, depending on the hour and min
         ChronoUtils.scheduleFixedTime(this::sendSummaries, summaryHour, summaryMin);
+
+        try {
+            reactorServer.startServer();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private void generateAndFirmDocuments() {
@@ -78,31 +89,34 @@ public class DocumentScheduler {
             List<FirmSignature> documentsPending = documentGenerator.generateDocument(sizeBatch, dataSource,
                     locationDocuments);
             if (!documentsPending.isEmpty()) {
-                firmDocument.signDocument(dataSource, documentsPending);
-                // try to send the FAC,NCR,NCD(inmediately)
-                wService.sendDocuments("",documentsPending);
+                firmDocument.signDocuments(dataSource, documentsPending);
+                // if all it's ok, we generate the pdf files in the folder pdf
+                documentsPending.forEach(
+                        item -> pdfDocument.generatePdfDocument(dataSource, item, locationDocuments + "/pdf/"));
             } else {
                 log.info("No documents pending to firm.");
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            log.error("Error generating and firming documents..", ex);
         }
     }
 
     private void sendSummaries() {
         try {
             log.info("Send summaries documents !!!");
-            List<FirmSignature> fSignature = sDocumentProcess.sendDocuments(0, dataSource,
+            List<FirmSignature> fSignature = sDocumentProcess.generateDocuments(0, dataSource,
                     locationDocuments + "/unsigned/");
             if (!fSignature.isEmpty()) {
-                firmDocument.signDocument(dataSource, fSignature);
+                firmDocument.signDocuments(dataSource, fSignature);
                 log.info("Sending documents...");
-                wService.sendSummarie(locationDocuments + "/unsigned/", fSignature);
+                wService.sendDocuments(locationDocuments + "/signed/", fSignature);
             } else {
                 log.info("No resumes left to firm.");
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            log.error("Error generating and firming documents..", ex);
         }
     }
 
@@ -112,6 +126,7 @@ public class DocumentScheduler {
             log.info("Validate documents !!!");
         } catch (Exception ex) {
             ex.printStackTrace();
+            log.error("Error generating and firming documents..", ex);
         }
     }
 
@@ -121,6 +136,7 @@ public class DocumentScheduler {
             log.info("Send Anulated documents !!!");
         } catch (Exception ex) {
             ex.printStackTrace();
+            log.error("Error generating and firming documents..", ex);
         }
     }
 
@@ -130,6 +146,8 @@ public class DocumentScheduler {
             log.info("Validating Anulated documents !!!");
         } catch (Exception ex) {
             ex.printStackTrace();
+            log.error("Error generating and firming documents..", ex);
         }
     }
+
 }

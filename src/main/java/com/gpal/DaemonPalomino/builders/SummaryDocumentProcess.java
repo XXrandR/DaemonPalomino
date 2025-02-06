@@ -25,7 +25,7 @@ public class SummaryDocumentProcess {
         this.velocityEngine = velocityEngine;
     }
 
-    public List<FirmSignature> sendDocuments(int sizeBatch, DataSource dataSource, String location) {
+    public List<FirmSignature> generateDocuments(int sizeBatch, DataSource dataSource, String location) {
         List<Object> input = new ArrayList<>();
         input.add("");
         input.add("BOL"); // this of course it's vital
@@ -42,7 +42,8 @@ public class SummaryDocumentProcess {
                         doc.getDateRefe(),
                         doc.getIssueDate(),
                         doc.getCompanyId(),
-                        doc.getCompanyName()),
+                        doc.getCompanyName(),
+                        doc.getCompanyRuc()),
                         Collectors.toList()))
                 .entrySet().stream()
                 .map(entry -> {
@@ -63,7 +64,7 @@ public class SummaryDocumentProcess {
             Template template = velocityEngine.getTemplate("/templates/xml/pasajes/SummaryDocument.vm");
             StringWriter writer = new StringWriter();
             template.merge(context, writer);
-            DataUtil.generateFile(data, writer, location);
+            DataUtil.generateFileSummarie(data, writer, location);
             sm.add(data);
         });
         return sm;

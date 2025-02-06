@@ -17,7 +17,7 @@ public class GenericDocument extends FirmSignature {
     private String DocumentTypeId;
 
     // if the type of document does not require it, just ignore it and let these in
-    // null
+    // null, in case of Summaries for example
     private String NU_DOCU;
     private String TI_DOCU;
     private String CO_EMPR;

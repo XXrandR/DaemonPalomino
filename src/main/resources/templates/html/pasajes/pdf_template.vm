@@ -1,0 +1,139 @@
+<!DOCTYPE>
+<html>
+
+<head>
+	<style>
+		table, th, td {
+			border: 1px solid black;
+			border-collapse: collapse;
+			padding: 5px;
+			margin-left: auto;
+			margin-right: auto;
+		}	
+		body {
+			font-family: sans-serif;
+		}
+		.headfac {
+			height: 25px;
+			width: auto;
+			float: right;
+			padding: 0 10px;
+			box-sizing: border-box;
+			text-align: right;
+			line-height: 0.05;
+		}
+		
+		.detbol {
+			text-align: right;
+		}
+		.header1 {
+			line-height: 0.5;
+		}
+		#qrcode {
+			display: block;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		.headcomp {
+			margin-top: 70px;
+			height: 25px;
+			box-sizing: border-box;
+			text-align: right;
+			float: right;
+			padding: 0 10px;
+			line-height: 0.8;
+		}
+		.cabcomp {
+			margin-top: 125px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="headfac">
+		<h5>RUC $document.businessID</h5>
+		<h5>$document.direction</h5>
+		<h5>Central telefónica:$document.centTelf</h5>
+		<div class="headcomp">
+			#if( $document.tiDocu == "BOL" ) 
+				<h2>BOLETA ELECTRÓNICA</h2>
+			#end
+			#if( $document.tiDocu == "FAC" ) 
+				<h2>FACTURA ELECTRÓNICA</h2>
+			#end
+			#if( $document.tiDocu == "NCR" ) 
+				<h2>NOTA DE CREDITO</h2>
+			#end
+			#if( $document.tiDocu == "NCD" ) 
+				<h2>NOTA DE DEBITO</h2>
+			#end
+			<h3>$document.nuDocu</h3>
+		</div>
+	</div>
+
+	<div class="header1">
+        #if( $document.businessID == "20417931393" ) 
+            <img src = "https://www.grupopalomino.com.pe/assets/img/palomino.png"></img></br>
+        #end
+        #if( $document.businessID == "20503693586" ) 
+            <img src = "https://www.grupopalomino.com.pe/assets/img/palomino.png"></img></br>
+        #end
+        #if( $document.businessID == "20515659324" ) 
+            <img src = "https://www.grupopalomino.com.pe/assets/img/palomino.png"></img></br>
+        #end
+		<h3>$document.businessName</h3>
+	</div>
+
+	<div class="cabcomp">
+        <b>FECHA DE EMISIÓN :</b>$document.dateEmition</br>
+        <b>FECHA DE VENCIMIENTO :</b> $document.dateVenc</br>
+        <b>CLIENTE: </b>$document.datClie</br>
+        <b>RUC :</b> $document.docuClie </br>
+        <b>DIRECCIÓN:</b>
+    </div>
+
+    </br></br>
+	<table>
+		<tr style="background-color: #D6EEEE">
+			<th>CANT.</th>
+			<th>UNIDAD</th>
+			<th>DESCRIPCION</th>
+			<th>MODELO</th>
+			<th>LOTE</th>
+			<th>SERIE</th>
+			<th>P.UNIT</th>
+			<th>DTO.</th>
+			<th>TOTAL</th>
+		</tr>
+#foreach ($item in $document.documents)
+		<tr>
+			<td>$item.cant</td>
+			<td>$item.noUnid</td>
+			<td>$item.description</td>
+			<td>$item.model</td>
+			<td>$item.lote</td>
+			<td>$item.serie</td>
+			<td>$item.priceUnit</td>
+			<td>$item.dto</td>
+			<td>$item.total</td>
+		</tr>
+#end
+	</table>
+	</br></br>
+	<div class="detbol">
+		<b>Op. exoneradas:</b> S/ $document.opExoneradas</br>
+		<b>Igv:</b>$document.igvAmount</br>
+		<b>Total a pagar:</b> S/ $document.totaPag</br>
+	</div>
+	</br>
+	<b>Son: </b>$document.totaPagLetters</br>
+	<b>Código Hash:</b> $document.codHash</br>
+	<b>Condición de pago:</b> $document.condPag</br>
+	<img id="qrcode" alt="QR Code" src="${document.qrBase64}">
+	</br>
+	Para consultar el comprobante ingresar a http://grupopalomino.com.pe/soluciones/documentos-turismo-palomino</br>
+
+</body>
+
+</html>

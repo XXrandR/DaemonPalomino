@@ -33,6 +33,7 @@ import com.gpal.DaemonPalomino.models.dao.PendingDocument;
 import com.gpal.DaemonPalomino.models.SummaryDocument;
 import com.gpal.DaemonPalomino.models.BolDocument;
 import com.gpal.DaemonPalomino.utils.DataUtil;
+import com.gpal.DaemonPalomino.utils.PropertiesHelper;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,15 +49,15 @@ public class FirmDocument {
     @Inject
     public FirmDocument(VelocityEngine velocityEngine) {
         this.velocityEngine = velocityEngine;
-
         // set location of unsigned,signed,pdf, and cdr
-        try (InputStream inputStream = FirmDocument.class.getClassLoader()
-                .getResourceAsStream("application.properties")) {
+        try {
             // for location
             Properties properties = new Properties();
-            properties.load(inputStream);
+            properties = PropertiesHelper.obtainProps();
+
             locationDocuments = properties.getProperty("location.documents") + "/signed/";
             locationUnsignedDocuments = properties.getProperty("location.documents") + "/unsigned/";
+
             // for certificated
             certificatePath = properties.getProperty("name.certificate");
             cX509Certificate = loadCertificate(properties.getProperty("name.certificate"));
@@ -65,15 +66,22 @@ public class FirmDocument {
         }
     }
 
-    public void signDocument(DataSource dataSource, List<FirmSignature> documentsToFirm) {
+    public void signDocuments(DataSource dataSource, List<FirmSignature> documentsToFirm) {
         PrivateKey privateKey = loadPrivateKey(certificatePath);
 
         // put the certificate to each item
         documentsToFirm.forEach(item -> {
             // obtaining the xml to firm
             GenericDocument item1 = (GenericDocument) item;
-            String locationFile = locationUnsignedDocuments + item1.getTI_DOCU() + "-" + item1.getCO_EMPR() + "-"
-                    + item1.getNU_DOCU() + ".xml";
+            String locationFile = "";
+            if (item1 instanceof SummaryDocument item2) {
+                locationFile = locationUnsignedDocuments + item2.getCompanyRuc() + "-"
+                        + item2.getNU_DOCU() + ".xml";
+            } else {
+                locationFile = locationUnsignedDocuments + item1.getCompanyID() + "-"
+                        + (item1.getTI_DOCU().equals("BOL") ? "03" : "01") + "-"
+                        + item1.getNU_DOCU() + ".xml";
+            }
             item.setSignatureValue(generateSignature(DataUtil.obtainBase64(locationFile), privateKey));
             item.setDigestValue(generateDigest(DataUtil.obtainBase64(locationFile)));
             item.setCertificate(getCertificateString(cX509Certificate));
@@ -82,7 +90,7 @@ public class FirmDocument {
         // then generate the files, accordingly
         documentsToFirm.forEach(item -> {
             if (item instanceof BolDocument ticketDocument) {
-                generateXMLSigned(ticketDocument, "xml/pasajes/ticket.vm");
+                generateXMLSigned(ticketDocument, "xml/pasajes/BDocument.vm");
                 // making the register of the data being firmed
                 List<Object> input = new ArrayList<>();
                 var item1 = (GenericDocument) item;
@@ -104,6 +112,7 @@ public class FirmDocument {
                 input.add(item1.getTI_DOCU());
                 input.add(item1.getCO_EMPR());
                 input.add("105");
+                log.info("Trying to register in firm: {}", input.toString());
                 DataUtil.executeProcedure(dataSource, "EXEC SP_OBT_DOCU_I01 ?,?,?,?,?,?", input, PendingDocument.class);
             }
         });
@@ -116,7 +125,11 @@ public class FirmDocument {
         Template template = velocityEngine.getTemplate("/templates/" + nameTempl);
         StringWriter writer = new StringWriter();
         template.merge(context, writer);
-        DataUtil.generateFile(document, writer, locationDocuments);
+        if (document instanceof SummaryDocument summaryDocument) {
+            DataUtil.generateFileSummarie(summaryDocument, writer, locationDocuments);
+        } else {
+            DataUtil.generateFile(document, writer, locationDocuments);
+        }
     }
 
     /* FROM HERE HELPERS TO SET CORRECTLY */
@@ -170,7 +183,6 @@ public class FirmDocument {
         ClassLoader classLoader = FirmDocument.class.getClassLoader();
         try (Reader reader = new InputStreamReader(classLoader.getResourceAsStream(pemFile));
                 PEMParser pemParser = new PEMParser(reader)) {
-
             Object bouncyCastleResult;
             PrivateKeyInfo info = null;
 

@@ -4,7 +4,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -28,7 +27,7 @@ public class ChronoUtils {
         }
         Timer timer = new Timer();
         TimerTask timerTask = new Helper();
-        timer.schedule(timerTask, scheduledTime, 24 * 60 * 60 * 1000); // to execute every 24 hours
+        timer.schedule(timerTask, scheduledTime, 24 * 60 * 60 * 1000);
     }
 
 }

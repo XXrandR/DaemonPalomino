@@ -113,10 +113,10 @@
 		</cac:PaymentTerms>
 	#end
 	<cac:TaxTotal>
-    <cbc:TaxAmount currencyID="PEN">0.00</cbc:TaxAmount>
+    <cbc:TaxAmount currencyID="PEN">$document.TaxAmount</cbc:TaxAmount>
     <cac:TaxSubtotal>
       <cbc:TaxableAmount currencyID="PEN">$document.PayableAmount</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="PEN">0.00</cbc:TaxAmount>
+      <cbc:TaxAmount currencyID="PEN">$document.TaxAmount</cbc:TaxAmount>
       <cac:TaxCategory>
         <cac:TaxScheme>
           <cbc:ID>9997</cbc:ID>

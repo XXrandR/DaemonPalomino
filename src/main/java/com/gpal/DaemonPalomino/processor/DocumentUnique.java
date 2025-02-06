@@ -23,9 +23,8 @@ public class DocumentUnique {
         this.generateDocument = generateDocument;
         this.dataSource = dataSource;
         this.firmDocument = firmDocument;
-
         // set location of unsigned,signed,pdf, and cdr
-        try (InputStream inputStream = DocumentScheduler.class.getClassLoader()
+        try (InputStream inputStream = DaemonScheduler.class.getClassLoader()
                 .getResourceAsStream("application.properties")) {
             if (inputStream == null)
                 throw new RuntimeException("Unable to find application.properties");
@@ -39,12 +38,11 @@ public class DocumentUnique {
         }
     }
 
-    // IN THIS OCATION JUST THE SAME, and by default it's going to write on top of the file if there's already one
-    public void sendDocument(String NU_DOCU, String TI_DOCU, String CO_EMPR) {
+    public void sendDocument(String NU_DOCU, String TI_DOCU, String CO_EMPR, String tiOper) {
         List<FirmSignature> documentsPending = generateDocument.generateDocumentUnique(dataSource, NU_DOCU, TI_DOCU,
-                CO_EMPR, locationDocuments);
+                CO_EMPR, locationDocuments, tiOper);
         if (!documentsPending.isEmpty()) {
-            firmDocument.signDocument(dataSource, documentsPending);
+            firmDocument.signDocuments(dataSource, documentsPending);
         } else {
             log.info("No documents pending to firm.");
         }

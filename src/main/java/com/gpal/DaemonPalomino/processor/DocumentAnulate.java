@@ -28,9 +28,9 @@ public class DocumentAnulate {
         input.add(co_empr);
         List<PendingDocument> documents = DataUtil.executeProcedure(dataSource, "EXEC SP_ANUL_DOCU_XML ?,?,?", input,
                 PendingDocument.class);
-        if(!documents.isEmpty()){
-            log.info("Document anulated, {}",documents.get(0).toString());
-        } else{
+        if (!documents.isEmpty()) {
+            log.info("Document anulated, {}", documents.get(0).toString());
+        } else {
             log.info("No documents to anulate.");
         }
         return !documents.isEmpty();

@@ -21,6 +21,7 @@ public class DetSummaryDocument {
     private String IssueDate;
     private String CompanyId;
     private String CompanyName;
+    private String CompanyRuc;
 
     private Long LineID; // number 0..n in asc
     private String DocumentType; // def 03(bol)

@@ -32,6 +32,7 @@ public class BolDocument extends GenericDocument {
     private String CustomerId;
     private String CustomerName;
     private String PaymentConditionId;
+    private BigDecimal TaxAmount;
     private BigDecimal PayableAmount;
     private String Description;
 

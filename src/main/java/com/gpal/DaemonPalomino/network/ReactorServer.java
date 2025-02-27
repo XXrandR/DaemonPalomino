@@ -3,6 +3,8 @@ package com.gpal.DaemonPalomino.network;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
+
 import javax.sql.DataSource;
 import com.gpal.DaemonPalomino.models.dao.DataPreVFact;
 import com.gpal.DaemonPalomino.processor.DocumentUnique;
@@ -65,27 +67,20 @@ public class ReactorServer {
         return Mono.fromCallable(() -> {
             String nro = hRequest.param("nro");
             String tipoOperacion = hRequest.param("tipoOperacion");
-
             Map<String, Object> dt = new HashMap<>();
-
             dt.put("pdf", obtainBase64Pdf());
             dt.put("qr", obtainQRCode());
             dt.put("hash", obtainHashCode());
-
-            List<DataPreVFact> mdata = DataUtil.<DataPreVFact>executeProcedure(dataSource, "EXEC SP_TTHELP_DOCU02 ?,?",
-                    List.of(nro, tipoOperacion), DataPreVFact.class);
-
-            documentUnique.sendDocument(mdata.get(0).NU_DOCU, mdata.get(0).TI_DOCU, mdata.get(0).CO_EMPR,
-                    tipoOperacion.equals("B") ? "001" : "002");
-
-            log.info("INFO of JSON: nro={}, tipoOperacion={}", nro, tipoOperacion);
-
+            Stream<DataPreVFact> mdata = DataUtil.executeProcedure(dataSource, "EXEC SP_TTHELP_DOCU02 ?,?",
+                    List.of(nro, tipoOperacion), DataPreVFact.class).stream();
+            mdata.map(item -> {
+                documentUnique.assembleLifecycle(item.getNU_DOCU(), item.getTI_DOCU(), item.getCO_EMPR(),
+                        tipoOperacion.equals("B") ? "001" : "002");
+                return item;
+            });
+            log.debug("INFO of JSON: nro={}, tipoOperacion={}", nro, tipoOperacion);
             return dt.toString();
         }).subscribeOn(Schedulers.boundedElastic());
-    }
-
-    private String assembleRespon() {
-        return "";
     }
 
     private String obtainBase64Pdf() {

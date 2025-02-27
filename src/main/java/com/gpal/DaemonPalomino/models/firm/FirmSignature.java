@@ -3,6 +3,7 @@ package com.gpal.DaemonPalomino.models.firm;
 import lombok.Getter;
 import lombok.Setter;
 
+// Used to store the Digest the Signature and Certificate
 @Getter
 @Setter
 public class FirmSignature {

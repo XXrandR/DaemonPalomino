@@ -1,4 +1,8 @@
 #because of test
+*.key
+*.p12
+*.pfx
+*.pem
 .idea/
 .mvn/
 data/

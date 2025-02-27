@@ -13,12 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 public class DocumentAnulate {
 
     private final DataSource dataSource;
-    private final WsService wService;
 
     @Inject
     public DocumentAnulate(DataSource dataSource, WsService wsService) {
         this.dataSource = dataSource;
-        this.wService = wsService;
     }
 
     public Boolean anulateDocument(String nu_docu, String ti_docu, String co_empr) {

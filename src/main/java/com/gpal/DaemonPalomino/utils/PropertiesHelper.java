@@ -8,7 +8,6 @@ public class PropertiesHelper {
     public static Properties obtainProps() {
         try (InputStream inputStream = PropertiesHelper.class.getClassLoader()
                 .getResourceAsStream("application.properties")) {
-
             Properties properties = new Properties();
             properties.load(inputStream);
             return properties;
@@ -16,4 +15,5 @@ public class PropertiesHelper {
             throw new RuntimeException("Failed to load application.properties", e);
         }
     }
+
 }

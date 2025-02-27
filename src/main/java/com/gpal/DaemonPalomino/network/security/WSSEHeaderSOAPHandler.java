@@ -1,4 +1,4 @@
-package com.gpal.DaemonPalomino.network.helpers;
+package com.gpal.DaemonPalomino.network.security;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Set;

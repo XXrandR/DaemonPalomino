@@ -9,7 +9,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import com.gpal.DaemonPalomino.models.DetSummaryDocument;
-import com.gpal.DaemonPalomino.models.firm.FirmSignature;
+import com.gpal.DaemonPalomino.models.generic.GenericDocument;
 import com.gpal.DaemonPalomino.models.SummaryDocument;
 import com.gpal.DaemonPalomino.utils.DataUtil;
 import jakarta.inject.Inject;
@@ -25,7 +25,7 @@ public class SummaryDocumentProcess {
         this.velocityEngine = velocityEngine;
     }
 
-    public List<FirmSignature> generateDocuments(int sizeBatch, DataSource dataSource, String location) {
+    public List<GenericDocument> generateDocuments(int sizeBatch, DataSource dataSource, String location) {
         List<Object> input = new ArrayList<>();
         input.add("");
         input.add("BOL"); // this of course it's vital
@@ -52,21 +52,23 @@ public class SummaryDocumentProcess {
                     return summary;
                 }).collect(Collectors.toList());
 
-        List<FirmSignature> sm = new ArrayList<>();
-
+        List<GenericDocument> sm = new ArrayList<>();
         summaries.forEach(data -> {
             log.info("Summary obtained: {}", data.toString());
             data.setNU_DOCU(data.getNumSummary());
             data.setTI_DOCU("SUM");
             data.setCO_EMPR(data.getCompanyId());
             VelocityContext context = new VelocityContext();
-            context.put("document", summaries);
+            context.put("document", data);
+            //context.put("document", summaries);
             Template template = velocityEngine.getTemplate("/templates/xml/pasajes/SummaryDocument.vm");
             StringWriter writer = new StringWriter();
             template.merge(context, writer);
+            //log.info("PATH to UNSIGNED(maybe): {}", location);
             DataUtil.generateFileSummarie(data, writer, location);
             sm.add(data);
         });
+        log.info("DATA SUMMARY --> {}", sm.toString());
         return sm;
     }
 

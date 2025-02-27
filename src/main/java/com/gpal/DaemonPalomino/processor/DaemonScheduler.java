@@ -1,21 +1,20 @@
 package com.gpal.DaemonPalomino.processor;
 
+import com.gpal.DaemonPalomino.models.generic.GenericDocument;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import com.gpal.DaemonPalomino.builders.DocumentSender;
 import com.gpal.DaemonPalomino.builders.FirmDocument;
 import com.gpal.DaemonPalomino.builders.GenerateDocument;
-import com.gpal.DaemonPalomino.builders.PdfDocument;
+import com.gpal.DaemonPalomino.builders.PdfDataDocument;
 import com.gpal.DaemonPalomino.builders.SummaryDocumentProcess;
-import com.gpal.DaemonPalomino.models.firm.FirmSignature;
+import com.gpal.DaemonPalomino.network.FtpRemote;
 import com.gpal.DaemonPalomino.network.ReactorServer;
-import com.gpal.DaemonPalomino.network.WsService;
-import com.gpal.DaemonPalomino.utils.ChronoUtils;
 import com.gpal.DaemonPalomino.utils.FolderManagement;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,25 +27,26 @@ public class DaemonScheduler {
     private Integer sizeBatch;
     private String locationDocuments;
     private final FirmDocument firmDocument;
-    private final SummaryDocumentProcess sDocumentProcess;
-    private final WsService wService;
-    private final PdfDocument pdfDocument;
+    private final PdfDataDocument pdfDocument;
     private final ReactorServer reactorServer;
+    private final DocumentSender documentSender;
+    private final FtpRemote ftpRemote;
 
     @Inject
     public DaemonScheduler(ReactorServer reactorServer, SummaryDocumentProcess sDocumentProcess,
             FirmDocument firmDocument, DataSource dataSource,
-            GenerateDocument generateDocument, WsService wsService, PdfDocument pdfDocument) {
+            GenerateDocument generateDocument, PdfDataDocument pdfDocument, DocumentSender documentSender,
+            FtpRemote ftpRemote) {
 
         this.reactorServer = reactorServer;
         this.dataSource = dataSource;
         this.documentGenerator = generateDocument;
-        this.sDocumentProcess = sDocumentProcess;
+        this.documentSender = documentSender;
         int numCores = Runtime.getRuntime().availableProcessors();
         this.scheduler = Executors.newScheduledThreadPool(numCores);
         this.firmDocument = firmDocument;
-        this.wService = wsService;
         this.pdfDocument = pdfDocument;
+        this.ftpRemote = ftpRemote;
         FolderManagement.createFolders();
         try (InputStream inputStream = DaemonScheduler.class.getClassLoader()
                 .getResourceAsStream("application.properties")) {
@@ -65,16 +65,10 @@ public class DaemonScheduler {
             int anulationValidateInterval, int summaryHour, int summaryMin) {
         this.sizeBatch = sizeBatch;
 
-        // this needs to work every 10 min or by preference
-        scheduler.scheduleWithFixedDelay(this::generateAndFirmDocuments, 0, firmInterval, TimeUnit.MINUTES);
-        // this needs to work every 30 min or by preference
-        scheduler.scheduleWithFixedDelay(this::sendDocumentsNotBol, 1, validationInterval, TimeUnit.DAYS);
-        // this needs to work every 30 min or by preference
-        scheduler.scheduleWithFixedDelay(this::sendAnulatedDocuments, 1, anulationSendInterval, TimeUnit.MINUTES);
-        // this needs to work every 30 min or by preference
-        scheduler.scheduleWithFixedDelay(this::valAnulatedDocuments, 1, anulationValidateInterval, TimeUnit.MINUTES);
-        // this works every 24 hours, depending on the hour and min
-        ChronoUtils.scheduleFixedTime(this::sendSummaries, summaryHour, summaryMin);
+        // scheduler.scheduleWithFixedDelay(this::generateAndFirmDocuments, 0,
+        // firmInterval, TimeUnit.MINUTES);
+        // scheduler.scheduleWithFixedDelay(this::getStatus, 1, anulationSendInterval,
+        // TimeUnit.MINUTES);
 
         try {
             reactorServer.startServer();
@@ -83,67 +77,42 @@ public class DaemonScheduler {
         }
     }
 
-    private void generateAndFirmDocuments() {
+    // process to firm the document and send it
+    private void assembleLifecycle() {
         try {
+
             log.info("Generate and Firm documents");
-            List<FirmSignature> documentsPending = documentGenerator.generateDocument(sizeBatch, dataSource,
+            // first obtain documents(1), generic
+            List<GenericDocument> documentsPending = documentGenerator.generateDocuments(sizeBatch, dataSource,
                     locationDocuments);
-            if (!documentsPending.isEmpty()) {
-                firmDocument.signDocuments(dataSource, documentsPending);
-                // if all it's ok, we generate the pdf files in the folder pdf
-                documentsPending.forEach(
-                        item -> pdfDocument.generatePdfDocument(dataSource, item, locationDocuments + "/pdf/"));
+
+            // then firm documents(2), generic
+            List<GenericDocument> documentsPending1 = firmDocument
+                    .signDocuments(dataSource, documentsPending);
+
+            // then generate pdf
+            List<GenericDocument> documentsPending2 = pdfDocument.generatePdfDocument(dataSource, documentsPending1,
+                    locationDocuments + "/pdf/");
+
+            //// send bizlinks data
+            List<GenericDocument> documentsPending3 = documentSender.sendDocument(documentsPending2);
+
+            // send resources to server
+            if (!ftpRemote.saveData(documentsPending3).isEmpty()) {
+                log.info("Successfully processed");
             } else {
-                log.info("No documents pending to firm.");
+                log.error("Some error while processing");
             }
+
         } catch (Exception ex) {
             ex.printStackTrace();
             log.error("Error generating and firming documents..", ex);
         }
     }
 
-    private void sendSummaries() {
+    public void getStatus() {
         try {
-            log.info("Send summaries documents !!!");
-            List<FirmSignature> fSignature = sDocumentProcess.generateDocuments(0, dataSource,
-                    locationDocuments + "/unsigned/");
-            if (!fSignature.isEmpty()) {
-                firmDocument.signDocuments(dataSource, fSignature);
-                log.info("Sending documents...");
-                wService.sendDocuments(locationDocuments + "/signed/", fSignature);
-            } else {
-                log.info("No resumes left to firm.");
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            log.error("Error generating and firming documents..", ex);
-        }
-    }
-
-    private void sendDocumentsNotBol() {
-        try {
-            // bs.getStatus("");
-            log.info("Validate documents !!!");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            log.error("Error generating and firming documents..", ex);
-        }
-    }
-
-    private void sendAnulatedDocuments() {
-        try {
-            // bs.sendSummary("", null);
             log.info("Send Anulated documents !!!");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            log.error("Error generating and firming documents..", ex);
-        }
-    }
-
-    private void valAnulatedDocuments() {
-        try {
-            // bs.sendPack("", null);
-            log.info("Validating Anulated documents !!!");
         } catch (Exception ex) {
             ex.printStackTrace();
             log.error("Error generating and firming documents..", ex);

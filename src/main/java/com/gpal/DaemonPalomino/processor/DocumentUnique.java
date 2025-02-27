@@ -5,11 +5,14 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 import javax.sql.DataSource;
+import com.gpal.DaemonPalomino.builders.DocumentSender;
 import com.gpal.DaemonPalomino.builders.FirmDocument;
 import com.gpal.DaemonPalomino.builders.GenerateDocument;
-import com.gpal.DaemonPalomino.models.firm.FirmSignature;
+import com.gpal.DaemonPalomino.builders.PdfDataDocument;
 import com.gpal.DaemonPalomino.utils.FolderManagement;
 import lombok.extern.slf4j.Slf4j;
+import com.gpal.DaemonPalomino.models.generic.GenericDocument;
+import com.gpal.DaemonPalomino.network.FtpRemote;
 
 @Slf4j
 public class DocumentUnique {
@@ -18,11 +21,18 @@ public class DocumentUnique {
     private final DataSource dataSource;
     private final String locationDocuments;
     private final FirmDocument firmDocument;
+    private final PdfDataDocument pdfDocument;
+    private final DocumentSender documentSender;
+    private final FtpRemote ftpRemote;
 
-    public DocumentUnique(GenerateDocument generateDocument, DataSource dataSource, FirmDocument firmDocument) {
+    public DocumentUnique(GenerateDocument generateDocument, DataSource dataSource, FirmDocument firmDocument,
+            PdfDataDocument pdfDocument, DocumentSender documentSender, FtpRemote ftpRemote) {
         this.generateDocument = generateDocument;
         this.dataSource = dataSource;
         this.firmDocument = firmDocument;
+        this.pdfDocument = pdfDocument;
+        this.documentSender = documentSender;
+        this.ftpRemote = ftpRemote;
         // set location of unsigned,signed,pdf, and cdr
         try (InputStream inputStream = DaemonScheduler.class.getClassLoader()
                 .getResourceAsStream("application.properties")) {
@@ -38,14 +48,31 @@ public class DocumentUnique {
         }
     }
 
-    public void sendDocument(String NU_DOCU, String TI_DOCU, String CO_EMPR, String tiOper) {
-        List<FirmSignature> documentsPending = generateDocument.generateDocumentUnique(dataSource, NU_DOCU, TI_DOCU,
+    public Boolean assembleLifecycle(String NU_DOCU, String TI_DOCU, String CO_EMPR, String tiOper) {
+
+        // generate xml unsigned
+        List<GenericDocument> documentsPending = generateDocument.generateDocumentUnique(dataSource, NU_DOCU, TI_DOCU,
                 CO_EMPR, locationDocuments, tiOper);
-        if (!documentsPending.isEmpty()) {
-            firmDocument.signDocuments(dataSource, documentsPending);
+
+        // sign xml
+        List<GenericDocument> documentsPending1 = firmDocument.signDocuments(dataSource, documentsPending);
+
+        // generate pdf
+        List<GenericDocument> documentsPending2 = pdfDocument.generatePdfDocument(dataSource, documentsPending1,
+                locationDocuments + "/pdf/");
+
+        // send bizlinks data
+        List<GenericDocument> documentsPending3 = documentSender.sendDocument(documentsPending2);
+
+        // send resources to server
+        if (!ftpRemote.saveData(documentsPending3).isEmpty()) {
+            log.info("Successfully processed");
         } else {
-            log.info("No documents pending to firm.");
+            log.error("Some error while processing");
         }
+
+        return true;
+
     }
 
 }

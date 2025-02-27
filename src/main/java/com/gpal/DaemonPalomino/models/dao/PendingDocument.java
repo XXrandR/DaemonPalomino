@@ -1,5 +1,7 @@
 package com.gpal.DaemonPalomino.models.dao;
 
+import java.sql.Timestamp;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,4 +16,5 @@ public class PendingDocument{
     private String TI_DOCU;
     private String CO_ORIG;
     private String CO_EMPR;
+    private Timestamp FE_DOCU;
 }

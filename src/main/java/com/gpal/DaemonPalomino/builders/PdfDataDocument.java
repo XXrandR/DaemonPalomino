@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -23,38 +25,44 @@ import com.gpal.DaemonPalomino.models.NcrDocument;
 import com.gpal.DaemonPalomino.models.dao.DataPdfDocument;
 import com.gpal.DaemonPalomino.models.dao.DataPdfDocument.DetBolPdfDocument;
 import com.gpal.DaemonPalomino.models.dao.DataPdfDocument.DetBolPdfDocument.DetBolPdfDocumentBuilder;
-import com.gpal.DaemonPalomino.models.firm.FirmSignature;
+import com.gpal.DaemonPalomino.models.generic.GenericDocument;
+import com.gpal.DaemonPalomino.utils.DataUtil;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import com.itextpdf.html2pdf.HtmlConverter;
 
 @Slf4j
-public class PdfDocument {
+public class PdfDataDocument {
 
     private final VelocityEngine velocityEngine;
 
     @Inject
-    public PdfDocument(VelocityEngine velocityEngine) {
+    public PdfDataDocument(VelocityEngine velocityEngine) {
         this.velocityEngine = velocityEngine;
     }
 
-    public Boolean generatePdfDocument(DataSource dataSource, FirmSignature genericDocument, String basePath) {
-        if (genericDocument instanceof FacDocument item1) {
-            return assemblePdf(createDtoFac(item1), basePath + item1.getCompanyID() + "-" + (item1.getTI_DOCU().equals("BOL") ? "03" : "01") + "-"
-                    + item1.getNU_DOCU() + ".pdf");
-        } else if (genericDocument instanceof BolDocument item1) {
-            return assemblePdf(createDtoBol(item1), basePath + item1.getCompanyID() + "-" + (item1.getTI_DOCU().equals("BOL") ? "03" : "01") + "-"
-                    + item1.getNU_DOCU() + ".pdf");
-        } else if (genericDocument instanceof NcdDocument item1) {
-            return assemblePdf(createDtoNcd(item1), basePath + item1.getCompanyID() + "-" + (item1.getTI_DOCU().equals("BOL") ? "03" : "01") + "-"
-                    + item1.getNU_DOCU() + ".pdf");
-        } else if (genericDocument instanceof NcrDocument item1) {
-            return assemblePdf(createDtoNcr(item1), basePath + item1.getCompanyID() + "-" + (item1.getTI_DOCU().equals("BOL") ? "03" : "01") + "-"
-                    + item1.getNU_DOCU() + ".pdf");
-        } else {
-            log.info("Type of document... unknown.");
-            return false;
-        }
+    public List<GenericDocument> generatePdfDocument(DataSource dataSource, List<GenericDocument> genericDocument,
+            String basePath) {
+        return genericDocument.stream().map(item -> {
+            log.info("PDF: {}, document, {}", basePath, item.getNU_DOCU());
+            if (item instanceof FacDocument item1) {
+                assemblePdf(createDtoFac(item1),
+                        basePath + DataUtil.obtainNameByTypeDocumentNotXml(item1) + ".pdf");
+            } else if (item instanceof BolDocument item1) {
+                assemblePdf(createDtoBol(item1),
+                        basePath + DataUtil.obtainNameByTypeDocumentNotXml(item1) + ".pdf");
+            } else if (item instanceof NcdDocument item1) {
+                assemblePdf(createDtoNcd(item1),
+                        basePath + DataUtil.obtainNameByTypeDocumentNotXml(item1) + ".pdf");
+            } else if (item instanceof NcrDocument item1) {
+                assemblePdf(createDtoNcr(item1),
+                        basePath + DataUtil.obtainNameByTypeDocumentNotXml(item1) + ".pdf");
+            } else {
+                log.info("Type of document... unknown.");
+            }
+            return item;
+        }).filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     private DataPdfDocument createDtoBol(BolDocument item1) {
@@ -115,7 +123,7 @@ public class PdfDocument {
             template.merge(context, writer);
             String html = writer.toString(); // This contains the merged HTML from Velocity
             HtmlConverter.convertToPdf(html, new FileOutputStream(pathAndFileName));
-            System.out.println("PDF created successfully at: " + pathAndFileName);
+            log.info("PDF created successfully at: " + pathAndFileName);
             return true;
         } catch (FileNotFoundException e) {
             log.error("File not found...", e);

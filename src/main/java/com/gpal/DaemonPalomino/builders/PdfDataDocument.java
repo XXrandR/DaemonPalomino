@@ -23,6 +23,7 @@ import com.gpal.DaemonPalomino.models.FacDocument;
 import com.gpal.DaemonPalomino.models.NcdDocument;
 import com.gpal.DaemonPalomino.models.NcrDocument;
 import com.gpal.DaemonPalomino.models.dao.DataPdfDocument;
+import com.gpal.DaemonPalomino.models.dao.PendingDocument;
 import com.gpal.DaemonPalomino.models.dao.DataPdfDocument.DetBolPdfDocument;
 import com.gpal.DaemonPalomino.models.dao.DataPdfDocument.DetBolPdfDocument.DetBolPdfDocumentBuilder;
 import com.gpal.DaemonPalomino.models.generic.GenericDocument;
@@ -49,7 +50,7 @@ public class PdfDataDocument {
                 assemblePdf(createDtoFac(item1),
                         basePath + DataUtil.obtainNameByTypeDocumentNotXml(item1) + ".pdf");
             } else if (item instanceof BolDocument item1) {
-                assemblePdf(createDtoBol(item1),
+                assemblePdf(createDtoBol(dataSource, item1),
                         basePath + DataUtil.obtainNameByTypeDocumentNotXml(item1) + ".pdf");
             } else if (item instanceof NcdDocument item1) {
                 assemblePdf(createDtoNcd(item1),
@@ -65,7 +66,7 @@ public class PdfDataDocument {
                 .collect(Collectors.toList());
     }
 
-    private DataPdfDocument createDtoBol(BolDocument item1) {
+    private DataPdfDocument createDtoBol(DataSource dataSource, BolDocument item1) {
         DetBolPdfDocumentBuilder dt = DetBolPdfDocument.builder();
         dt.cant("1");
         dt.noUnid("NIU");
@@ -76,6 +77,11 @@ public class PdfDataDocument {
         dt.priceUnit(String.valueOf(item1.getPayableAmount()));
         dt.dto("");
         dt.total(String.valueOf(item1.getPayableAmount()));
+
+        // TODO: PROCEDURE TO DO AN INSERT IN V_Ventas_Facturacion
+        // DataUtil.executeProcedure(dataSource, "EXEC SP_VFACTURACION_I01 ?,?,?,?,?,?",
+        // List.of(arg1, arg2, arg3, arg4, arg5, arg6), PendingDocument.class);
+
         return DataPdfDocument.builder()
                 .nuDocu(item1.getSeries() + "-" + item1.getNumber())
                 .businessName(item1.getCompanyName())
@@ -94,16 +100,31 @@ public class PdfDataDocument {
                 .totaPagLetters(item1.getAmountInLetters())
                 .codHash(item1.getDigestValue())
                 .condPag("")
-                .qrBase64(assembleQr(item1.getCompanyID() + "|01" + item1.getSeries() + "|" + item1.getNumber()
+                .qrBase64(assembleQr(item1.getCompanyID() + "|01|" + item1.getSeries() + "|" + item1.getNumber()
                         + "|0.00|" + item1.getDueDate() + "|" + item1.getTI_DOCU() + "|"
                         + item1.getCustomerId() + "|"
                         + item1.getDigestValue() + "|"
-                        + item1.getPayableAmount() + "|" + item1.getDigestValue(), 300, 300))
+                        + item1.getPayableAmount() + "|" + item1.getDigestValue() + "|" + item1.getSignatureValue(),
+                        300, 300))
                 .documents(List.of(dt.build())).build();
     }
 
+    // NECESSARY FOR FACTURATION
+    // facturacion.getRuc() + "|" + ventas.get("TipoDocumento") + "|" +
+    // ventas.get("SerieElectronica")
+    // + "|" + ventas.get("Numero") + "|" + ventas.get("IGV") + "|" +
+    // ventas.get("Total") + "|"
+    // + ventas.get("FechaEmision").toString().replace("-", "") + "|" +
+    // ventas.get("TipoDocumentoReceptor")
+    // + "|"
+    // + (ventas.get("TipoDocumentoReceptor").toString().trim().equals("6") ?
+    // ventas.get("Ruc")
+    // : ventas.get("DNI"))
+    // + "|" + respuestaXML.get("codehash") + "|" +
+    // respuestaXML.get("signaturevalue");
+
     private DataPdfDocument createDtoFac(FacDocument item1) {
-        return null;
+        return DataPdfDocument.builder().build();
     }
 
     private DataPdfDocument createDtoNcr(NcrDocument item1) {

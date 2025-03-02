@@ -1,11 +1,13 @@
 package com.gpal.DaemonPalomino.network;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
-
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gpal.DaemonPalomino.models.dao.DataPreVFact;
 import com.gpal.DaemonPalomino.processor.DocumentUnique;
 import com.gpal.DaemonPalomino.utils.DataUtil;
@@ -39,6 +41,7 @@ public class ReactorServer {
     static final boolean HTTP2 = System.getProperty("http2") != null;
     private final DocumentUnique documentUnique;
     private final DataSource dataSource;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Inject
     public ReactorServer(DocumentUnique documentUnique, DataSource dataSource) {
@@ -64,23 +67,74 @@ public class ReactorServer {
     }
 
     private Mono<String> assembleResponseJson(HttpServerRequest hRequest) {
-        return Mono.fromCallable(() -> {
+        return Mono.defer(() -> {
             String nro = hRequest.param("nro");
             String tipoOperacion = hRequest.param("tipoOperacion");
-            Map<String, Object> dt = new HashMap<>();
-            dt.put("pdf", obtainBase64Pdf());
-            dt.put("qr", obtainQRCode());
-            dt.put("hash", obtainHashCode());
-            Stream<DataPreVFact> mdata = DataUtil.executeProcedure(dataSource, "EXEC SP_TTHELP_DOCU02 ?,?",
-                    List.of(nro, tipoOperacion), DataPreVFact.class).stream();
-            mdata.map(item -> {
-                documentUnique.assembleLifecycle(item.getNU_DOCU(), item.getTI_DOCU(), item.getCO_EMPR(),
-                        tipoOperacion.equals("B") ? "001" : "002");
-                return item;
-            });
-            log.debug("INFO of JSON: nro={}, tipoOperacion={}", nro, tipoOperacion);
-            return dt.toString();
-        }).subscribeOn(Schedulers.boundedElastic());
+
+            if (nro == null || tipoOperacion == null) {
+                return Mono.error(new IllegalArgumentException("Missing required parameters: nro and tipoOperacion"));
+            }
+
+            return Mono.from(
+                    getBlockingOperation(() -> DataUtil.executeProcedure(
+                            dataSource,
+                            "EXEC SP_TTHELP_DOCU02 ?,?",
+                            List.of(nro, tipoOperacion),
+                            DataPreVFact.class)))
+                    .flatMap(tuple -> {
+                        Map<String, Object> response = new LinkedHashMap<>();
+                        response.put("pdf", obtainBase64Pdf());
+                        response.put("qr", obtainQRCode());
+                        response.put("hash", obtainHashCode());
+
+                        tuple.stream()
+                                .map(item -> documentUnique.assembleLifecycle(
+                                        item.getNU_DOCU(),
+                                        item.getTI_DOCU(),
+                                        item.getCO_EMPR(),
+                                        switch (tipoOperacion) {
+                                            case "B" -> "001";
+                                            case "E" -> "002";
+                                            case "C" -> "003";
+                                            case "D" -> "004";
+                                            default -> "";
+                                        }))
+                                .collect(Collectors.toList());
+
+                        log.debug("Constructed response for nro={}, tipoOperacion={}", nro, tipoOperacion);
+
+                        try {
+                            return Mono.just(objectMapper.writeValueAsString(response));
+                        } catch (JsonProcessingException e) {
+                            return Mono.error(e);
+                        }
+                    });
+        });
+    }
+
+    // private Mono<String> assembleResponseJson(HttpServerRequest hRequest) {
+    // return Mono.fromCallable(() -> {
+    // String nro = hRequest.param("nro");
+    // String tipoOperacion = hRequest.param("tipoOperacion");
+    // Map<String, Object> dt = new HashMap<>();
+    // dt.put("pdf", obtainBase64Pdf());
+    // dt.put("qr", obtainQRCode());
+    // dt.put("hash", obtainHashCode());
+    // List<DataPreVFact> mdata = DataUtil.executeProcedure(dataSource, "EXEC
+    // SP_TTHELP_DOCU02 ?,?",
+    // List.of(nro, tipoOperacion), DataPreVFact.class);
+    // var a = mdata.stream().map(item -> {
+    // return documentUnique.assembleLifecycle(item.getNU_DOCU(), item.getTI_DOCU(),
+    // item.getCO_EMPR(),
+    // tipoOperacion.equals("B") ? "001" : "002");
+    // });
+    // log.debug("INFO of JSON: nro={}, tipoOperacion={}", nro, tipoOperacion);
+    // return dt.toString();
+    // }).subscribeOn(Schedulers.boundedElastic());
+    // }
+
+    private <T> Mono<T> getBlockingOperation(Supplier<T> supplier) {
+        return Mono.fromSupplier(supplier).subscribeOn(Schedulers.boundedElastic());
     }
 
     private String obtainBase64Pdf() {

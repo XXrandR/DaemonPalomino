@@ -44,6 +44,11 @@
   <!--
   FROM HERE, DEPENDENCIES NEEDED, BY BIZLINKS
   -->
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.13.3</version>
+    </dependency>
 
     <dependency>
         <groupId>io.github.resilience4j</groupId>

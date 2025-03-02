@@ -1,9 +1,11 @@
 package com.gpal.DaemonPalomino.network;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
@@ -52,6 +54,7 @@ public class FtpRemote {
                 // For simplicity; consider using known hosts file in production
                 Properties config = new Properties();
                 config.put("StrictHostKeyChecking", "no");
+                config.put("debug", "all");
                 session.setConfig(config);
                 session.connect();
             } else {
@@ -132,17 +135,17 @@ public class FtpRemote {
         try {
             sftp = (ChannelSftp) session.openChannel("sftp");
             sftp.connect();
-            ensureDirectoriesExist(sftp, localPath);
-            if (Files.exists(Paths.get(localPath))) {
-                try (InputStream inputStream = new FileInputStream(localPath)) {
-                    sftp.put(inputStream, remotePath);
-                    return DataUtil.deleteFile(localPath);
-                }
-            } else {
-                System.out.println("The file does not exist or is a directory.");
+
+            Path localFilePath = Paths.get(localPath);
+            File parentDir = localFilePath.getParent().toFile();
+            if (!parentDir.exists() && !parentDir.mkdirs()) {
+                log.error("Failed to create parent directories for {}", localPath);
                 return false;
             }
-        } catch (IOException | JSchException | SftpException ex) {
+
+            sftp.get(remotePath, localPath);
+            return true;
+        } catch (JSchException | SftpException ex) {
             log.error("Error: ", ex);
             return false;
         } finally {

@@ -159,7 +159,7 @@ public class XmlSec {
         if (signatureList.getLength() > 0) {
             Element signatureElement = (Element) signatureList.item(0);
             if (!signatureElement.hasAttribute("Id")) {
-                signatureElement.setAttribute("Id", "signatureFACTURALOPERU");
+                signatureElement.setAttribute("Id", "palominoFACTURACION");
                 signatureElement.setIdAttribute("Id", true);
             }
         }

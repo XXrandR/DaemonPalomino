@@ -17,7 +17,7 @@
   <cbc:Note languageLocaleID="1000"><![CDATA[Cuarenta y cinco  con 00/100 ]]></cbc:Note>
   <cbc:DocumentCurrencyCode>$document.CurrencyTypeId</cbc:DocumentCurrencyCode>
   <cac:Signature>
-    <cbc:ID>signaturePALOMINO/cbc:ID>
+    <cbc:ID>signaturePALOMINO</cbc:ID>
     <cbc:Note>PALOMINO</cbc:Note>
     <cac:SignatoryParty>
       <cac:PartyIdentification>

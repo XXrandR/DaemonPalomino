@@ -63,6 +63,7 @@ public class DaemonScheduler {
     public void startSendDocuments(int sizeBatch, int firmInterval, int validationInterval,
             int anulationSendInterval,
             int anulationValidateInterval, int summaryHour, int summaryMin) {
+
         this.sizeBatch = sizeBatch;
 
         // scheduler.scheduleWithFixedDelay(this::generateAndFirmDocuments, 0,
@@ -75,10 +76,12 @@ public class DaemonScheduler {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
     }
 
     // process to firm the document and send it
     private void assembleLifecycle() {
+
         try {
 
             log.info("Generate and Firm documents");
@@ -94,7 +97,7 @@ public class DaemonScheduler {
             List<GenericDocument> documentsPending2 = pdfDocument.generatePdfDocument(dataSource, documentsPending1,
                     locationDocuments + "/pdf/");
 
-            //// send bizlinks data
+            // send bizlinks data
             List<GenericDocument> documentsPending3 = documentSender.sendDocument(documentsPending2);
 
             // send resources to server
@@ -108,15 +111,18 @@ public class DaemonScheduler {
             ex.printStackTrace();
             log.error("Error generating and firming documents..", ex);
         }
+
     }
 
     public void getStatus() {
+
         try {
             log.info("Send Anulated documents !!!");
         } catch (Exception ex) {
             ex.printStackTrace();
             log.error("Error generating and firming documents..", ex);
         }
+
     }
 
 }

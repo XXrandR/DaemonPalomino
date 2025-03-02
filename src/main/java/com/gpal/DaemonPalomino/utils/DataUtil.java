@@ -54,9 +54,7 @@ public class DataUtil {
 
             List<T> mTs = new ArrayList<>();
             var dataSourc = dataSource.getConnection();
-
             log.info("Procedure: {},{}", procedureQuery, data.toString());
-
             PreparedStatement statement = dataSourc.prepareStatement(procedureQuery);
             IntStream.range(0, data.size()).forEach(i -> {
                 try {
@@ -215,7 +213,7 @@ public class DataUtil {
 
             return DataUtil.obtainFileDataHandler(zipFileName);
         } catch (Exception ex) {
-            log.error("Error creating the ZIP file", ex);
+            log.error("Error creating the zip file", ex);
             return null;
         }
     }
@@ -229,7 +227,7 @@ public class DataUtil {
             while ((entry = zis.getNextEntry()) != null) {
                 String fileName = entry.getName();
                 File outputFile = new File(location, fileName);
-                log.info("File to UNZIP: {}", fileName);
+                log.info("File to unzip: {}", fileName);
 
                 // Create directories if the entry is a directory
                 if (entry.isDirectory()) {
@@ -244,7 +242,6 @@ public class DataUtil {
                     // Write file content
                     try (FileOutputStream fos = new FileOutputStream(outputFile);
                             BufferedOutputStream bos = new BufferedOutputStream(fos)) {
-
                         byte[] buffer = new byte[1024];
                         int bytesRead;
                         while ((bytesRead = zis.read(buffer)) != -1) {
@@ -253,7 +250,6 @@ public class DataUtil {
                     }
                 }
             }
-
         } catch (IOException ex) {
             ex.printStackTrace();
         }

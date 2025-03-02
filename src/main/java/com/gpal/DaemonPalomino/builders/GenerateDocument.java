@@ -49,10 +49,11 @@ public class GenerateDocument {
             String location) {
         List<Object> input = Arrays.asList(pendingDocument.getNU_DOCU(), pendingDocument.getTI_DOCU(),
                 pendingDocument.getCO_EMPR(), pendingDocument.getCO_ORIG());
-
         log.debug("Generating xml for {},{},{},{}", pendingDocument.getNU_DOCU(), pendingDocument.getTI_DOCU(),
                 pendingDocument.getCO_EMPR(), pendingDocument.getCO_ORIG());
         location = location.concat("/unsigned/");
+
+        // TODO: To complete the rest of documents
         switch (pendingDocument.getTI_DOCU()) {
             case "BOL" -> {
                 return generateDoc(dataSource, input, pendingDocument, location, BolDocument.class,

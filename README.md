@@ -52,6 +52,22 @@ it awaits in two endpoints:
 java -jar target/DaemonPalomino-ALPHA1-jar-with-dependencies.jar SERVER 5 1 1 1 1 1 1 10 59
 ```
 
+```bash
+keytool -importkeystore -srckeystore <keystore.jks> -destkeystore <keystore.p12> -srcstoretype JKS -deststoretype PKCS12
+openssl pkcs12 -in exp-palomino.p12 -nokeys -out exp-palomino.pem
+
+# in this part only let the cert of palomino and delete the rest
+openssl pkcs12 -in exp-palomino.p12 -nocerts -nodes -out private.pem
+
+# join the previous two in one .pem file using
+cat certificate.pem private.pem > combined.pem
+
+# then validate
+openssl x509 -noout -text -in combined.pem
+openssl rsa -check -noout -in combined.pem
+```
+
 # FOR SSH CONFIG
 ssh-keyscan -H 172.16.10.15 >> ~/.ssh/known_hosts
+ssh-keyscan -H 172.16.10.15 >> ~/.ssh/administrator
 

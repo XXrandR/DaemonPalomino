@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.sql.DataSource;
 import com.gpal.DaemonPalomino.builders.DocumentSender;
 import com.gpal.DaemonPalomino.builders.FirmDocument;
@@ -24,6 +26,7 @@ public class DocumentUnique {
     private final PdfDataDocument pdfDocument;
     private final DocumentSender documentSender;
     private final FtpRemote ftpRemote;
+    private static final ExecutorService ASYNC_EXECUTOR = Executors.newSingleThreadExecutor();
 
     public DocumentUnique(GenerateDocument generateDocument, DataSource dataSource, FirmDocument firmDocument,
             PdfDataDocument pdfDocument, DocumentSender documentSender, FtpRemote ftpRemote) {
@@ -48,7 +51,7 @@ public class DocumentUnique {
         }
     }
 
-    public Boolean assembleLifecycle(String NU_DOCU, String TI_DOCU, String CO_EMPR, String tiOper) {
+    public List<GenericDocument> assembleLifecycle(String NU_DOCU, String TI_DOCU, String CO_EMPR, String tiOper) {
 
         // generate xml unsigned
         List<GenericDocument> documentsPending = generateDocument.generateDocumentUnique(dataSource, NU_DOCU, TI_DOCU,
@@ -61,17 +64,23 @@ public class DocumentUnique {
         List<GenericDocument> documentsPending2 = pdfDocument.generatePdfDocument(dataSource, documentsPending1,
                 locationDocuments + "/pdf/");
 
-        // send bizlinks data
-        List<GenericDocument> documentsPending3 = documentSender.sendDocument(documentsPending2);
+        ASYNC_EXECUTOR.submit(() -> {
+            try {
+                // send bizlinks data
+                List<GenericDocument> documentsPending3 = documentSender.sendDocument(documentsPending2);
 
-        // send resources to server
-        if (!ftpRemote.saveData(documentsPending3).isEmpty()) {
-            log.info("Successfully processed");
-        } else {
-            log.error("Some error while processing");
-        }
+                // send resources to server
+                if (!ftpRemote.saveData(documentsPending3).isEmpty()) {
+                    log.info("Successfully processed");
+                } else {
+                    log.error("Some error while processing");
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
 
-        return true;
+        return documentsPending2;
 
     }
 

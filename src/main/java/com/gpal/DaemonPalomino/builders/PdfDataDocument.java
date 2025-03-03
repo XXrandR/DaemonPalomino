@@ -79,8 +79,11 @@ public class PdfDataDocument {
         dt.total(String.valueOf(item1.getPayableAmount()));
 
         // TODO: PROCEDURE TO DO AN INSERT IN V_Ventas_Facturacion
-        // DataUtil.executeProcedure(dataSource, "EXEC SP_VFACTURACION_I01 ?,?,?,?,?,?",
-        // List.of(arg1, arg2, arg3, arg4, arg5, arg6), PendingDocument.class);
+        //DataUtil.executeProcedure(dataSource, "EXEC SP_VFACTURACION_I01 ?,?,?,?,?,?",
+        //
+        //        List.of(arg1, arg2, arg3, arg4, arg5, arg6), PendingDocument.class);
+        //
+        log.debug("Values QR, HASH: "+ item1.getDigestValue() + "|" + item1.getSignatureValue());
 
         return DataPdfDocument.builder()
                 .nuDocu(item1.getSeries() + "-" + item1.getNumber())

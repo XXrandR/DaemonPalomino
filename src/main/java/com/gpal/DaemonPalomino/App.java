@@ -108,7 +108,7 @@ public class App {
             String co_empr = String.valueOf(args[3]);
             coreComp.documentUnique().assembleLifecycle(nu_docu, ti_docu, co_empr, null);
             log.info("Document sending process finished successfully.");
-            System.exit(0);
+            //System.exit(0);
         } catch (Exception ex) {
             log.error("Invalid number format in arguments. Please provide integer values.");
             ex.printStackTrace();

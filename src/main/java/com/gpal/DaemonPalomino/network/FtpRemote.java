@@ -80,6 +80,11 @@ public class FtpRemote {
                                     + DataUtil.obtainNameByTypeDocument(document),
                             props.getProperty("location.remote") + "/signed/"
                                     + DataUtil.obtainNameByTypeDocumentNotXml(document) + ".xml");
+                    upload(
+                            props.getProperty("location.documents") + "/cdr/R-"
+                                    + DataUtil.obtainNameByTypeDocument(document),
+                            props.getProperty("location.remote") + "/cdr/R-"
+                                    + DataUtil.obtainNameByTypeDocumentNotXml(document) + ".xml");
                     return document;
                 }).collect(Collectors.toList());
     }
@@ -94,10 +99,14 @@ public class FtpRemote {
                             + DataUtil.obtainNameByTypeDocumentNotXml(document) + ".pdf",
                             props.getProperty("location.documents") + "/pdf/"
                                     + DataUtil.obtainNameByTypeDocumentNotXml(document) + ".pdf");
+                    download(props.getProperty("location.remote") + "/cdr/R-"
+                            + DataUtil.obtainNameByTypeDocumentNotXml(document) + ".xml",
+                            props.getProperty("location.documents") + "/cdr/R-"
+                                    + DataUtil.obtainNameByTypeDocumentNotXml(document) + ".xml");
                     download(props.getProperty("location.remote") + "/signed/"
                             + DataUtil.obtainNameByTypeDocumentNotXml(document) + ".xml",
                             props.getProperty("location.documents") + "/signed/"
-                                    + DataUtil.obtainNameByTypeDocument(document));
+                                    + DataUtil.obtainNameByTypeDocumentNotXml(document) + ".xml");
                     return document;
                 }).collect(Collectors.toList());
     }

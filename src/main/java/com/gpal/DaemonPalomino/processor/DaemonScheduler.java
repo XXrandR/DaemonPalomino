@@ -97,7 +97,7 @@ public class DaemonScheduler {
             List<GenericDocument> documentsPending2 = pdfDocument.generatePdfDocument(dataSource, documentsPending1,
                     locationDocuments + "/pdf/");
 
-            // send bizlinks data
+            //// send bizlinks data
             List<GenericDocument> documentsPending3 = documentSender.sendDocument(documentsPending2);
 
             // send resources to server

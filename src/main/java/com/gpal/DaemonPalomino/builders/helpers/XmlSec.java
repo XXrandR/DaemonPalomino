@@ -76,7 +76,7 @@ public class XmlSec {
             log.info("Injecting Signatures..");
             injectSignature(doc, privateKey, certificate);
 
-            saveFirmedDocumentDto(sDocument);
+            saveFirmedDocumentDto(doc, sDocument);
 
             log.info("Saving Document..");
             DataUtil.saveXml(doc, locationSignedDocuments + DataUtil.obtainNameByTypeDocument(sDocument));
@@ -91,12 +91,31 @@ public class XmlSec {
         }
     }
 
-    private <T> void saveFirmedDocumentDto(T sDocument) {
-        if (sDocument instanceof FirmSignature firmedDto) {
-            firmedDto.setCertificate(null);
-            firmedDto.setDigestValue(null);
-            firmedDto.setSignatureValue(null);
-        }
+    private void saveFirmedDocumentDto(Document doc, GenericDocument sDocument) {
+        sDocument.setCertificate(obtainCertificate(doc));
+        sDocument.setDigestValue(obtainDigest(doc));
+        sDocument.setSignatureValue(obtainSignature(doc));
+    }
+
+    private String obtainCertificate(Document doc) {
+        var a = doc.getElementsByTagNameNS(XMLSignature.XMLNS,
+                "X509Certificate").item(0).getTextContent().replaceAll("\\s", "");
+        log.debug("Certificate FOUND: {}", a);
+        return a;
+    }
+
+    private String obtainDigest(Document doc) {
+        var a = doc.getElementsByTagNameNS(XMLSignature.XMLNS,
+                "DigestValue").item(0).getTextContent().replaceAll("\\s", "");
+        log.debug("DIGEST FOUND: {}", a);
+        return a;
+    }
+
+    private String obtainSignature(Document doc) {
+        var a = doc.getElementsByTagNameNS(XMLSignature.XMLNS,
+                "SignatureValue").item(0).getTextContent().replaceAll("\\s", "");
+        log.debug("SIGNATURE FOUND: {}", a);
+        return a;
     }
 
     private static void injectSignature(Document doc, PrivateKey privateKey, X509Certificate certificate)

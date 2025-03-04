@@ -38,6 +38,16 @@ java -jar target/DaemonPalomino-ALPHA1.0-jar-with-dependencies.jar CANCEL B644-8
 -   CoEmpr: Business code, i mean 005,004, etc.
 -   Parameter UNIQUE.
 
+## To download only the CDR
+```bash
+java -jar target/DaemonPalomino-ALPHA1.0-jar-with-dependencies.jar CDR F305 0000919 07 20417931393
+```
+- Usage: java -jar DaemonPalomino.jar  <NuDocu> <TiDocu> <CoEmpr> 
+-   CDR: Parameter that it's principal
+-   Serie: Code like F502 or B502
+-   NuDocu: Number that represents the number of document(correlative)
+-   CoEmpr: Ruc of Business
+
 ## How the HTTP server works
 ```bash
 java -jar target/DaemonPalomino-ALPHA1.0-jar-with-dependencies.jar SERVER 5 1 1 1 1 1 10 59
@@ -52,17 +62,23 @@ it awaits in two endpoints:
 java -jar target/DaemonPalomino-ALPHA1-jar-with-dependencies.jar SERVER 5 1 1 1 1 1 1 10 59
 ```
 
+## From .p12 into an .pem file
 ```bash
 keytool -importkeystore -srckeystore <keystore.jks> -destkeystore <keystore.p12> -srcstoretype JKS -deststoretype PKCS12
 openssl pkcs12 -in exp-palomino.p12 -nokeys -out exp-palomino.pem
+```
 
 # in this part only let the cert of palomino and delete the rest
+```bash
 openssl pkcs12 -in exp-palomino.p12 -nocerts -nodes -out private.pem
+```
 
 # join the previous two in one .pem file using
+```bash
 cat certificate.pem private.pem > combined.pem
-
+```
 # then validate
+```bash
 openssl x509 -noout -text -in combined.pem
 openssl rsa -check -noout -in combined.pem
 ```

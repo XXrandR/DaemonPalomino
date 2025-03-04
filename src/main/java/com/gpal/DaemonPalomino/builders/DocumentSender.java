@@ -40,6 +40,16 @@ public class DocumentSender {
                 .filter(Objects::nonNull).collect(Collectors.toList());
     }
 
+    public boolean downloadCdr(String co_seri, String nu_docu, String ti_docu, String co_empr) {
+        try {
+            wsService.getStatusCdr(co_seri, nu_docu, ti_docu, co_empr);
+            return true;
+        } catch (SOAPException_Exception ex) {
+            processError(ex, null);
+            return false;
+        }
+    }
+
     private GenericDocument sendDocument(GenericDocument object) {
         try {
             var document = wsService.sendDocument(object, DataUtil.obtainNameByTypeDocumentNotXml(object) + ".zip",

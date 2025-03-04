@@ -51,6 +51,22 @@ public class DocumentUnique {
         }
     }
 
+    public boolean downloadCdr(String co_seri, String nu_docu, String ti_docu, String co_empr) {
+        return documentSender.downloadCdr(co_seri, nu_docu, ti_docu, co_empr);
+    }
+
+    // public List<GenericDocument> obtainCdr(String co_seri,String nu_docu,String
+    // ti_docu,String co_empr) {
+    //
+    // //generateDocument.generateDocumentUnique();
+    // //generate xml unsigned
+    // List<GenericDocument> documentsPending =
+    // generateDocument.generateDocumentUnique(dataSource, NU_DOCU, TI_DOCU,
+    // CO_EMPR, locationDocuments, tiOper);
+    //
+    // return documentsPending;
+    // }
+
     public List<GenericDocument> assembleLifecycle(String NU_DOCU, String TI_DOCU, String CO_EMPR, String tiOper) {
 
         // generate xml unsigned
@@ -73,7 +89,7 @@ public class DocumentUnique {
                 if (!ftpRemote.saveData(documentsPending3).isEmpty()) {
                     log.info("Successfully processed");
                 } else {
-                    log.error("Some error while processing");
+                    log.error("Empty list to send..");
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();

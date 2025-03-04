@@ -104,7 +104,7 @@ public class DaemonScheduler {
             if (!ftpRemote.saveData(documentsPending3).isEmpty()) {
                 log.info("Successfully processed");
             } else {
-                log.error("Some error while processing");
+                log.error("Empty list documentsPending3.");
             }
 
         } catch (Exception ex) {

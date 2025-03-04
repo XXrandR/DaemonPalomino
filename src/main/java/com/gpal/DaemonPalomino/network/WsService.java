@@ -57,6 +57,22 @@ public class WsService {
         return bService.getBizlinksOSEPort();
     }
 
+    public BizlinksOSE putAuthentication(BizlinksOSE_Service service, String user, String pass) {
+        //String user = properties.getProperty("keys." + document.getCO_EMPR() + ".user");
+        //String pass = properties.getProperty("keys." + document.getCO_EMPR() + ".pass");
+        log.info("The User: {} and Pass: {}", user, pass);
+        service.setHandlerResolver(new HandlerResolver() {
+            @SuppressWarnings("rawtypes")
+            @Override
+            public List<Handler> getHandlerChain(PortInfo portInfo) {
+                List<Handler> handlerChain = new ArrayList<>();
+                handlerChain.add(new WSSEHeaderSOAPHandler(user, pass));
+                return handlerChain;
+            }
+        });
+        return bService.getBizlinksOSEPort();
+    }
+
     public GenericDocument sendDocument(GenericDocument document, String fileName,
             jakarta.activation.DataHandler contentFile)
             throws SOAPException_Exception {
@@ -82,6 +98,21 @@ public class WsService {
         byte[] data = bislinksOse.getStatusCdr(status);
         DataUtil.unzipFiles(documentsCdr + "/cdr/", data);
         return document;
+    }
+
+    public boolean getStatusCdr(String co_seri, String nu_docu, String ti_docu, String co_empr) throws SOAPException_Exception {
+        String user = properties.getProperty("keys." + co_empr + ".user");
+        String pass = properties.getProperty("keys." + co_empr + ".pass");
+        bislinksOse = putAuthentication(bService, user, pass);
+        StatusCdr status = new StatusCdr();
+        log.info("Document to cdr: Ruc {}, Numero {}, Tipo {}, Serie {}", co_empr,nu_docu, ti_docu, co_seri);
+        status.setRucComprobante(co_empr);
+        status.setNumeroComprobante(nu_docu);
+        status.setTipoComprobante(ti_docu);
+        status.setSerieComprobante(co_seri);
+        byte[] data = bislinksOse.getStatusCdr(status);
+        DataUtil.unzipFiles(documentsCdr + "/cdr/", data);
+        return true;
     }
 
     public boolean getStatus(GenericDocument document) throws SOAPException_Exception {

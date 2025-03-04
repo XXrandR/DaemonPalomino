@@ -18,6 +18,9 @@ public class App {
         } else if (args.length > 1 && args[0].equals("UNIQUE")) {
             handleUniqueCommand(args, coreComp);
             log.info("Parameter UNIQUE.");
+        } else if (args.length > 1 && args[0].equals("CDR")) {
+            handleUniqueCdr(args, coreComp);
+            log.info("Parameter CDR.");
         } else if (args.length > 1 && args[0].equals("CANCEL")) {
             handleCancelCommand(args, coreComp);
             log.debug("Parameter to CANCEL");
@@ -96,6 +99,28 @@ public class App {
         log.info("  timeValidatingDocuments: Code of the Business");
     }
 
+    private static void handleUniqueCdr(String[] args, CoreComponent coreComp) {
+        // FORMAT: TI_DOCU,NU_DOCU,CO_EMPR
+        if (args.length < 4) {
+            printUniqueUsage();
+            return;
+        }
+        try {
+            String co_seri = String.valueOf(args[1]);
+            String nu_docu = String.valueOf(args[2]);
+            String ti_docu = String.valueOf(args[3]);
+            String co_empr = String.valueOf(args[4]);
+            log.info("1 Document to cdr: Ruc {}, Numero {}, Tipo {}, Serie {}", co_empr,nu_docu, ti_docu, co_seri);
+            coreComp.documentUnique().downloadCdr(co_seri, nu_docu, ti_docu, co_empr);
+            log.info("Document sending process finished successfully.");
+            // System.exit(0);
+        } catch (Exception ex) {
+            log.error("Invalid number format in arguments. Please provide integer values.");
+            ex.printStackTrace();
+            printUniqueUsage();
+        }
+    }
+
     private static void handleUniqueCommand(String[] args, CoreComponent coreComp) {
         // FORMAT: TI_DOCU,NU_DOCU,CO_EMPR
         if (args.length < 4) {
@@ -108,7 +133,7 @@ public class App {
             String co_empr = String.valueOf(args[3]);
             coreComp.documentUnique().assembleLifecycle(nu_docu, ti_docu, co_empr, null);
             log.info("Document sending process finished successfully.");
-            //System.exit(0);
+            // System.exit(0);
         } catch (Exception ex) {
             log.error("Invalid number format in arguments. Please provide integer values.");
             ex.printStackTrace();

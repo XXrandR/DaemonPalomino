@@ -2,8 +2,10 @@ package com.gpal.DaemonPalomino.database;
 
 import dagger.Module;
 import dagger.Provides;
+import java.util.Properties;
 import javax.inject.Singleton;
 import javax.sql.DataSource;
+import com.gpal.DaemonPalomino.utils.PropertiesHelper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -14,11 +16,16 @@ public class DatabaseModule {
     @Singleton
     public DataSource provideHikariConfig() {
         HikariConfig config = new HikariConfig();
-        config.setDataSourceClassName("com.microsoft.sqlserver.jdbc.SQLServerDataSource");
-        //config.addDataSourceProperty("url","jdbc:sqlserver://172.16.10.200:1433;database=Empresa;encrypt=false;trustServerCertificate=true");
-        config.addDataSourceProperty("url","jdbc:sqlserver://172.16.20.8\\TPALOMINOSQL;database=Empresa;encrypt=false;trustServerCertificate=true");
-        config.addDataSourceProperty("user", "sa");
-        config.addDataSourceProperty("password", "palomino.123");
+        Properties props = PropertiesHelper.obtainProps();
+        config.setDataSourceClassName(props.getProperty("db.datasource"));
+        config.addDataSourceProperty("url", props.getProperty("db.url"));
+        config.addDataSourceProperty("user", props.getProperty("db.user"));
+        config.addDataSourceProperty("password", props.getProperty("db.password"));
+
+        // config.setDataSourceClassName("com.microsoft.sqlserver.jdbc.SQLServerDataSource");
+        // config.addDataSourceProperty("url","jdbc:sqlserver://172.16.20.8\\TPALOMINOSQL;database=Empresa;encrypt=false;trustServerCertificate=true");
+        // config.addDataSourceProperty("user", "sa");
+        // config.addDataSourceProperty("password", "palomino.123");
         config.setMaximumPoolSize(10);
         config.setMinimumIdle(2);
         config.setConnectionTimeout(300000); // 30 seconds

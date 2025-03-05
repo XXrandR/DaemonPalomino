@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class RetryPattern {
+
     private final Retry retry;
 
     public RetryPattern(String retryName, int MaxAttempts, Duration wait,
@@ -56,4 +57,5 @@ public class RetryPattern {
                 .retry(retry.getName() + "-custom", config);
         return Retry.decorateSupplier(newRetry, supplier).get();
     }
+
 }

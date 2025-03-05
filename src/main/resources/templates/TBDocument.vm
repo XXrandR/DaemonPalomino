@@ -107,8 +107,8 @@
     <cbc:TaxInclusiveAmount currencyID="$document.CurrencyTypeId">$document.PayableAmount</cbc:TaxInclusiveAmount>
     <cbc:PayableAmount currencyID="$document.CurrencyTypeId">$document.PayableAmount</cbc:PayableAmount>
   </cac:LegalMonetaryTotal>
-  <cac:InvoiceLine>
 
+  <cac:InvoiceLine>
     <cbc:ID>1</cbc:ID>
     <cbc:InvoicedQuantity unitCode="NIU">1.0000</cbc:InvoicedQuantity>
     <cbc:LineExtensionAmount currencyID="$document.CurrencyTypeId">$document.PayableAmount</cbc:LineExtensionAmount>
@@ -147,6 +147,6 @@
     <cac:Price>
       <cbc:PriceAmount currencyID="$document.CurrencyTypeId">$document.ItemPrice</cbc:PriceAmount>
     </cac:Price>
-
   </cac:InvoiceLine>
+
 </Invoice>

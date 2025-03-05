@@ -88,7 +88,7 @@ public class App {
         } catch (Exception ex) {
             log.error("Invalid number format in arguments. Please provide integer values.");
             ex.printStackTrace();
-            printUniqueUsage();
+            printCancelUsage();
         }
     }
 
@@ -102,7 +102,7 @@ public class App {
     private static void handleUniqueCdr(String[] args, CoreComponent coreComp) {
         // FORMAT: TI_DOCU,NU_DOCU,CO_EMPR
         if (args.length < 4) {
-            printUniqueUsage();
+            printUniqueUsageCdr();
             return;
         }
         try {
@@ -110,14 +110,13 @@ public class App {
             String nu_docu = String.valueOf(args[2]);
             String ti_docu = String.valueOf(args[3]);
             String co_empr = String.valueOf(args[4]);
-            log.info("1 Document to cdr: Ruc {}, Numero {}, Tipo {}, Serie {}", co_empr,nu_docu, ti_docu, co_seri);
+            log.info("1 Document to cdr: Ruc {}, Numero {}, Tipo {}, Serie {}", co_empr, nu_docu, ti_docu, co_seri);
             coreComp.documentUnique().downloadCdr(co_seri, nu_docu, ti_docu, co_empr);
             log.info("Document sending process finished successfully.");
-            // System.exit(0);
         } catch (Exception ex) {
             log.error("Invalid number format in arguments. Please provide integer values.");
             ex.printStackTrace();
-            printUniqueUsage();
+            printUniqueUsageCdr();
         }
     }
 
@@ -146,6 +145,15 @@ public class App {
         log.info("  NuDocu: The Number of the Document with the format (B644-8874).");
         log.info("  TiDocu: The type of document to BOL,FAC,NCR,NCD.");
         log.info("  CoEmpr: Business code, i mean 005,004, etc.");
+    }
+
+    private static void printUniqueUsageCdr() {
+        log.info(
+                "Usage: java -jar target/DaemonPalomino-ALPHA1.0-jar-with-dependencies.jar CDR <CoSeri> <NuDocu> <TiDocu(07,01,03)> <CoEmpr>");
+        log.info("  CoSeri: The Code of Serie B644.");
+        log.info("  NuDocu: The Number of the Document with the format (8874).");
+        log.info("  TiDocu: The type of document to 07,01,03.");
+        log.info("  CoEmpr: Ruc of the Business.");
     }
 
 }

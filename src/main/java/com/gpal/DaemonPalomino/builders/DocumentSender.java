@@ -42,7 +42,7 @@ public class DocumentSender {
 
     public boolean downloadCdr(String co_seri, String nu_docu, String ti_docu, String co_empr) {
         try {
-            wsService.getStatusCdr(co_seri, nu_docu, ti_docu, co_empr);
+            wsService.getStatusCdr(co_seri, String.valueOf(Integer.valueOf(nu_docu)), ti_docu, co_empr);
             return true;
         } catch (SOAPException_Exception ex) {
             processError(ex, null);
@@ -52,10 +52,18 @@ public class DocumentSender {
 
     private GenericDocument sendDocument(GenericDocument object) {
         try {
-            var document = wsService.sendDocument(object, DataUtil.obtainNameByTypeDocumentNotXml(object) + ".zip",
+            GenericDocument document = wsService.sendDocument(object,
+                    DataUtil.obtainNameByTypeDocumentNotXml(object) + ".zip",
                     DataUtil.obtainFileDataHandlerZip(
                             pathBase + "/signed/" + DataUtil.obtainNameByTypeDocumentNotXml(object)));
-            var document1 = wsService.getStatusCdr(document);
+            GenericDocument document1 = wsService.getStatusCdr(document);
+
+            // save the status on DB
+            DataUtil.executeProcedure(dataSource, "EXEC SP_OBT_DOCU_I01 ?,?,?,?,?,?",
+                    Arrays.asList("ACE", "ACEPTADO", object.getNU_DOCU(), object.getTI_DOCU(),
+                            object.getCO_EMPR(),
+                            object.getCO_ORIG()),
+                    PendingDocument.class);
             return document1;
         } catch (SOAPException_Exception ex) {
             processError(ex, object);
@@ -64,7 +72,7 @@ public class DocumentSender {
     }
 
     // In case of an error save into the server that error, register it
-    private <T extends GenericDocument> void processError(SOAPException_Exception ex, T document) {
+    private void processError(SOAPException_Exception ex, GenericDocument document) {
         Pattern pattern = Pattern.compile("\\b\\d{4}\\b");
         Matcher matcher = pattern.matcher(ex.getMessage());
         if (matcher.find()) {

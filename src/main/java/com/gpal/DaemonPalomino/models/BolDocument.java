@@ -35,5 +35,7 @@ public class BolDocument extends GenericDocument {
     private BigDecimal TaxAmount;
     private BigDecimal PayableAmount;
     private String Description;
+    private String Afecto;
+    private String FechaCreditDueDate;
 
 }

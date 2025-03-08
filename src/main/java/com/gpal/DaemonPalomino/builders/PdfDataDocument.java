@@ -17,6 +17,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.oned.Code128Writer;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.gpal.DaemonPalomino.models.BolDocument;
 import com.gpal.DaemonPalomino.models.FacDocument;
@@ -48,16 +49,16 @@ public class PdfDataDocument {
             log.info("PDF: {}, document, {}", basePath, item.getNU_DOCU());
             if (item instanceof FacDocument item1) {
                 assemblePdf(createDtoFac(item1),
-                        basePath + DataUtil.obtainNameByTypeDocumentNotXml(item1) + ".pdf");
+                        basePath + DataUtil.obtainNameByTypeDocumentNotXml(item1) + ".pdf", "pdf_template.vm");
             } else if (item instanceof BolDocument item1) {
                 assemblePdf(createDtoBol(dataSource, item1),
-                        basePath + DataUtil.obtainNameByTypeDocumentNotXml(item1) + ".pdf");
+                        basePath + DataUtil.obtainNameByTypeDocumentNotXml(item1) + ".pdf", "pdf_template.vm");
             } else if (item instanceof NcdDocument item1) {
                 assemblePdf(createDtoNcd(item1),
-                        basePath + DataUtil.obtainNameByTypeDocumentNotXml(item1) + ".pdf");
+                        basePath + DataUtil.obtainNameByTypeDocumentNotXml(item1) + ".pdf", "pdf_template.vm");
             } else if (item instanceof NcrDocument item1) {
                 assemblePdf(createDtoNcr(item1),
-                        basePath + DataUtil.obtainNameByTypeDocumentNotXml(item1) + ".pdf");
+                        basePath + DataUtil.obtainNameByTypeDocumentNotXml(item1) + ".pdf", "pdf_template.vm");
             } else {
                 log.info("Type of document... unknown.");
             }
@@ -78,9 +79,24 @@ public class PdfDataDocument {
         dt.dto("");
         dt.total(String.valueOf(item1.getPayableAmount()));
 
-        // TODO: PROCEDURE TO DO AN INSERT IN V_Ventas_Facturacion
-        //DataUtil.executeProcedure(dataSource, "EXEC SP_VFACTURACION_I01 ?,?,?,?,?,?",
-        //        List.of(arg1, arg2, arg3, arg4, arg5, arg6), PendingDocument.class);
+        byte[] arg3 = assembleQr(item1.getCompanyID() + "|01|" + item1.getSeries() + "|" + item1.getNumber()
+                + "|0.00|" + item1.getDueDate() + "|" + item1.getTI_DOCU() + "|"
+                + item1.getCustomerId() + "|"
+                + item1.getDigestValue() + "|"
+                + item1.getPayableAmount() + "|" + item1.getDigestValue() + "|" + item1.getSignatureValue(),
+                300, 300).getBytes();
+
+        byte[] arg2 = assembleBarCode(item1.getCompanyID() + "|01|" + item1.getSeries() + "|" + item1.getNumber()
+                + "|0.00|" + item1.getDueDate() + "|" + item1.getTI_DOCU() + "|"
+                + item1.getCustomerId() + "|"
+                + item1.getDigestValue() + "|"
+                + item1.getPayableAmount() + "|" + item1.getDigestValue() + "|" + item1.getSignatureValue(),
+                300, 300).getBytes();
+
+        DataUtil.executeProcedure(dataSource, "EXEC SP_VFACTURACION_I01 ?,?,?,?,?,?,?,?",
+                List.of(arg2, arg2, arg3, item1.getDigestValue(), item1.getNU_DOCU(), item1.getTI_DOCU(),
+                        item1.getCO_EMPR(), item1.getCO_ORIG()),
+                PendingDocument.class);
 
         return DataPdfDocument.builder()
                 .nuDocu(item1.getSeries() + "-" + item1.getNumber())
@@ -109,20 +125,6 @@ public class PdfDataDocument {
                 .documents(List.of(dt.build())).build();
     }
 
-    // NECESSARY FOR FACTURATION
-    // facturacion.getRuc() + "|" + ventas.get("TipoDocumento") + "|" +
-    // ventas.get("SerieElectronica")
-    // + "|" + ventas.get("Numero") + "|" + ventas.get("IGV") + "|" +
-    // ventas.get("Total") + "|"
-    // + ventas.get("FechaEmision").toString().replace("-", "") + "|" +
-    // ventas.get("TipoDocumentoReceptor")
-    // + "|"
-    // + (ventas.get("TipoDocumentoReceptor").toString().trim().equals("6") ?
-    // ventas.get("Ruc")
-    // : ventas.get("DNI"))
-    // + "|" + respuestaXML.get("codehash") + "|" +
-    // respuestaXML.get("signaturevalue");
-
     private DataPdfDocument createDtoFac(FacDocument item1) {
         return DataPdfDocument.builder().build();
     }
@@ -135,12 +137,12 @@ public class PdfDataDocument {
         return DataPdfDocument.builder().build();
     }
 
-    private Boolean assemblePdf(DataPdfDocument document, String pathAndFileName) {
+    private Boolean assemblePdf(DataPdfDocument document, String pathAndFileName, String templateName) {
         try {
             VelocityContext context = new VelocityContext();
             context.put("document", document);
             StringWriter writer = new StringWriter();
-            Template template = velocityEngine.getTemplate("/templates/html/pasajes/pdf_template.vm");
+            Template template = velocityEngine.getTemplate("/templates/html/pasajes/" + templateName);
             template.merge(context, writer);
             String html = writer.toString(); // This contains the merged HTML from Velocity
             HtmlConverter.convertToPdf(html, new FileOutputStream(pathAndFileName));
@@ -161,6 +163,20 @@ public class PdfDataDocument {
             MatrixToImageWriter.writeToStream(matrix, "PNG", pngOutputStream);
             return "data:image/png;base64," + Base64.getEncoder().encodeToString(pngOutputStream.toByteArray());
         } catch (WriterException | IOException ex) {
+            log.error("IO Error: captured in assembleQr in PdfDocument class..", ex);
+            return null;
+        }
+    }
+
+    private String assembleBarCode(String data, int height, int width) {
+        try {
+            Code128Writer qrCodeWriter = new Code128Writer();
+            ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
+            BitMatrix matrix = qrCodeWriter.encode(new String(data.getBytes("UTF-8"), "UTF-8"),
+                    BarcodeFormat.CODE_128, width, height);
+            MatrixToImageWriter.writeToStream(matrix, "PNG", pngOutputStream);
+            return "data:image/png;base64," + Base64.getEncoder().encodeToString(pngOutputStream.toByteArray());
+        } catch (IOException ex) {
             log.error("IO Error: captured in assembleQr in PdfDocument class..", ex);
             return null;
         }

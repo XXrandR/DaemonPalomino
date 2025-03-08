@@ -37,7 +37,7 @@ public class DocumentUnique {
         this.documentSender = documentSender;
         this.ftpRemote = ftpRemote;
         // set location of unsigned,signed,pdf, and cdr
-        try (InputStream inputStream = DaemonScheduler.class.getClassLoader()
+        try (InputStream inputStream = DocumentUnique.class.getClassLoader()
                 .getResourceAsStream("application.properties")) {
             if (inputStream == null)
                 throw new RuntimeException("Unable to find application.properties");
@@ -55,31 +55,22 @@ public class DocumentUnique {
         return documentSender.downloadCdr(co_seri, nu_docu, ti_docu, co_empr);
     }
 
-    // public List<GenericDocument> obtainCdr(String co_seri,String nu_docu,String
-    // ti_docu,String co_empr) {
-    //
-    // //generateDocument.generateDocumentUnique();
-    // //generate xml unsigned
-    // List<GenericDocument> documentsPending =
-    // generateDocument.generateDocumentUnique(dataSource, NU_DOCU, TI_DOCU,
-    // CO_EMPR, locationDocuments, tiOper);
-    //
-    // return documentsPending;
-    // }
-
     public List<GenericDocument> assembleLifecycle(String NU_DOCU, String TI_DOCU, String CO_EMPR, String tiOper) {
 
-        // generate xml unsigned
+        log.info("Processing document {},{},{}.", NU_DOCU, TI_DOCU, CO_EMPR);
+
+        // first obtain documents(1), generic
         List<GenericDocument> documentsPending = generateDocument.generateDocumentUnique(dataSource, NU_DOCU, TI_DOCU,
                 CO_EMPR, locationDocuments, tiOper);
 
-        // sign xml
+        // then sign document(2), generic
         List<GenericDocument> documentsPending1 = firmDocument.signDocuments(dataSource, documentsPending);
 
         // generate pdf
         List<GenericDocument> documentsPending2 = pdfDocument.generatePdfDocument(dataSource, documentsPending1,
                 locationDocuments + "/pdf/");
 
+        // to not wait for these processes that are basically optional because can be reprocessed by the backround thread
         ASYNC_EXECUTOR.submit(() -> {
             try {
                 // send bizlinks data
@@ -89,7 +80,7 @@ public class DocumentUnique {
                 if (!ftpRemote.saveData(documentsPending3).isEmpty()) {
                     log.info("Successfully processed");
                 } else {
-                    log.error("Empty list to send..");
+                    log.info("Empty list to send..");
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();

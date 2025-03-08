@@ -2,6 +2,7 @@ package com.gpal.DaemonPalomino.processor;
 
 import com.gpal.DaemonPalomino.models.generic.GenericDocument;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
@@ -66,10 +67,10 @@ public class DaemonScheduler {
 
         this.sizeBatch = sizeBatch;
 
-        // scheduler.scheduleWithFixedDelay(this::generateAndFirmDocuments, 0,
-        // firmInterval, TimeUnit.MINUTES);
-        // scheduler.scheduleWithFixedDelay(this::getStatus, 1, anulationSendInterval,
-        // TimeUnit.MINUTES);
+        //scheduler.scheduleWithFixedDelay(this::assembleLifecycle, 0,
+        //        firmInterval, TimeUnit.MINUTES);
+        //scheduler.scheduleWithFixedDelay(this::getStatus, 1, anulationSendInterval,
+        //        TimeUnit.MINUTES);
 
         try {
             reactorServer.startServer();
@@ -84,7 +85,8 @@ public class DaemonScheduler {
 
         try {
 
-            log.info("Generate and Firm documents");
+            log.info("Generate and Firm documents massive.");
+
             // first obtain documents(1), generic
             List<GenericDocument> documentsPending = documentGenerator.generateDocuments(sizeBatch, dataSource,
                     locationDocuments);
@@ -97,7 +99,7 @@ public class DaemonScheduler {
             List<GenericDocument> documentsPending2 = pdfDocument.generatePdfDocument(dataSource, documentsPending1,
                     locationDocuments + "/pdf/");
 
-            //// send bizlinks data
+            // send bizlinks data
             List<GenericDocument> documentsPending3 = documentSender.sendDocument(documentsPending2);
 
             // send resources to server

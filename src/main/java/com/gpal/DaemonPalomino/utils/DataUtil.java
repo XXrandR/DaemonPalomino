@@ -51,7 +51,6 @@ public class DataUtil {
     public static <T> List<T> executeProcedure(DataSource dataSource, String procedureQuery, List<?> data,
             Class<T> mClass) {
         try {
-
             List<T> mTs = new ArrayList<>();
             var dataSourc = dataSource.getConnection();
             log.info("Procedure: {},{}", procedureQuery, data.toString());
@@ -79,7 +78,6 @@ public class DataUtil {
             rsSet.close();
             dataSourc.close();
             return mTs;
-
         } catch (Exception ex) {
             log.error("Error DataUtil ex: ", ex);
             return null;
@@ -219,8 +217,7 @@ public class DataUtil {
     }
 
     public static void unzipFiles(String location, byte[] unzipFile) {
-        try (
-                ByteArrayInputStream bStream = new ByteArrayInputStream(unzipFile);
+        try (ByteArrayInputStream bStream = new ByteArrayInputStream(unzipFile);
                 ZipInputStream zis = new ZipInputStream(bStream);) {
             ZipEntry entry;
 

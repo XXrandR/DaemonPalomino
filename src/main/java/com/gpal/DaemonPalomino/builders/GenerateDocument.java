@@ -11,6 +11,9 @@ import org.apache.velocity.app.VelocityEngine;
 import com.gpal.DaemonPalomino.models.generic.GenericDocument;
 import com.gpal.DaemonPalomino.models.dao.PendingDocument;
 import com.gpal.DaemonPalomino.models.BolDocument;
+import com.gpal.DaemonPalomino.models.FacDocument;
+import com.gpal.DaemonPalomino.models.NcdDocument;
+import com.gpal.DaemonPalomino.models.NcrDocument;
 import com.gpal.DaemonPalomino.utils.DataUtil;
 import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -52,32 +55,22 @@ public class GenerateDocument {
         log.debug("Generating xml for {},{},{},{}", pendingDocument.getNU_DOCU(), pendingDocument.getTI_DOCU(),
                 pendingDocument.getCO_EMPR(), pendingDocument.getCO_ORIG());
         location = location.concat("/unsigned/");
-
-        // TODO: To complete the rest of documents
         switch (pendingDocument.getTI_DOCU()) {
             case "BOL" -> {
                 return generateDoc(dataSource, input, pendingDocument, location, BolDocument.class,
                         "/templates/xml/pasajes/BDocument.vm");
             }
             case "FAC" -> {
-                log.info("NOT YET IMPLEMENTED...{},{}", pendingDocument.getTI_DOCU(),
-                        pendingDocument.getNU_DOCU());
-                // return generateDoc(dataSource, input, pendingDocument, location,
-                // FacDocument.class,
-                // "/templates/xml/pasajes/FDocument.vm");
+                return generateDoc(dataSource, input, pendingDocument, location, FacDocument.class,
+                        "/templates/xml/pasajes/FDocument.vm");
             }
             case "NCR" -> {
-                log.info("NOT YET IMPLEMENTED...{},{}", pendingDocument.getTI_DOCU(),
-                        pendingDocument.getNU_DOCU());
-                // return generateDoc(dataSource, input, pendingDocument, location,
-                // NcrDocument.class,
-                // "/templates/xml/pasajes/NCDocument.vm");
+                return generateDoc(dataSource, input, pendingDocument, location, NcdDocument.class,
+                        "/templates/xml/pasajes/NCDocument.vm");
             }
             case "NCD" -> {
-                log.info("NOT YET IMPLEMENTED...{},{}", pendingDocument.getTI_DOCU(),
-                        pendingDocument.getNU_DOCU());
-                // generateDoc(dataSource, input, pendingDocument, location, NcdDocument.class,
-                // "/templates/xml/pasajes/NDDocument.vm");
+                return generateDoc(dataSource, input, pendingDocument, location, NcrDocument.class,
+                        "/templates/xml/pasajes/NCDocument.vm");
             }
             default -> log.info("Tipo de documento no identificado...");
         }
@@ -85,12 +78,9 @@ public class GenerateDocument {
     }
 
     public <T extends GenericDocument> T generateDoc(DataSource dataSource, List<Object> input,
-            PendingDocument pendingDocument,
-            String location, Class<T> clazz, String templ) {
+            PendingDocument pendingDocument, String location, Class<T> clazz, String templ) {
         List<T> dbDocuments = DataUtil.executeProcedure(dataSource, "EXEC SP_OBT_DOCU ?,?,?,?",
-                input,
-                clazz);
-
+                input, clazz);
         return dbDocuments.stream().map(docu -> {
             log.debug("Documents processing : {}", docu.getNU_DOCU() + " " + docu.getTI_DOCU());
             // T document = docu.get(0);

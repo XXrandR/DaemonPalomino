@@ -11,8 +11,10 @@ import javax.inject.Singleton;
 
 @Singleton
 @Component(modules = { DocumentProcessorModule.class, DatabaseModule.class, NetworkModule.class })
-public interface CoreComponent{
+public interface CoreComponent {
     DaemonScheduler daemonScheduler();
+
     DocumentUnique documentUnique();
+
     DocumentAnulate documentAnulate();
 }

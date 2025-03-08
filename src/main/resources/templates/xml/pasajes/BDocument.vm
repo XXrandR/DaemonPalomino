@@ -90,11 +90,19 @@
       <cbc:TaxableAmount currencyID="PEN">$document.PayableAmount</cbc:TaxableAmount>
       <cbc:TaxAmount currencyID="PEN">$document.TaxAmount</cbc:TaxAmount>
       <cac:TaxCategory>
-        <cac:TaxScheme>
-          <cbc:ID>9997</cbc:ID>
-          <cbc:Name>EXO</cbc:Name>
-          <cbc:TaxTypeCode>VAT</cbc:TaxTypeCode>
-        </cac:TaxScheme>
+          #if ($document.Afecto == "N")
+              <cac:TaxScheme>
+                <cbc:ID>9997</cbc:ID>
+                <cbc:Name>EXO</cbc:Name>
+                <cbc:TaxTypeCode>VAT</cbc:TaxTypeCode>
+              </cac:TaxScheme>
+          #else if($document.Afecto == "S")
+            <cac:TaxScheme>
+                <cbc:ID>1000</cbc:ID>
+                <cbc:Name>IGV</cbc:Name>
+                <cbc:TaxTypeCode>VAT</cbc:TaxTypeCode>
+            </cac:TaxScheme>
+          #end
       </cac:TaxCategory>
     </cac:TaxSubtotal>
   </cac:TaxTotal>
@@ -114,18 +122,28 @@
       </cac:AlternativeConditionPrice>
     </cac:PricingReference>
     <cac:TaxTotal>
-      <cbc:TaxAmount currencyID="PEN">0.00</cbc:TaxAmount>
+      <cbc:TaxAmount currencyID="PEN">$document.TaxAmount</cbc:TaxAmount>
       <cac:TaxSubtotal>
         <cbc:TaxableAmount currencyID="PEN">$document.PayableAmount</cbc:TaxableAmount>
-        <cbc:TaxAmount currencyID="PEN">0.00</cbc:TaxAmount>
+        <cbc:TaxAmount currencyID="PEN">$document.TaxAmount</cbc:TaxAmount>
         <cac:TaxCategory>
-          <cbc:Percent>0</cbc:Percent>
-          <cbc:TaxExemptionReasonCode>20</cbc:TaxExemptionReasonCode>
-          <cac:TaxScheme>
-            <cbc:ID>9997</cbc:ID>
-            <cbc:Name>EXO</cbc:Name>
-            <cbc:TaxTypeCode>VAT</cbc:TaxTypeCode>
-          </cac:TaxScheme>
+          #if ($document.Afecto == "N")
+              <cbc:Percent>0</cbc:Percent>
+              <cbc:TaxExemptionReasonCode>20</cbc:TaxExemptionReasonCode>
+              <cac:TaxScheme>
+                <cbc:ID>9997</cbc:ID>
+                <cbc:Name>EXO</cbc:Name>
+                <cbc:TaxTypeCode>VAT</cbc:TaxTypeCode>
+              </cac:TaxScheme>
+          #else if($document.Afecto == "S")
+            <cbc:Percent>18.00</cbc:Percent>
+            <cbc:TaxExemptionReasonCode>20</cbc:TaxExemptionReasonCode>
+            <cac:TaxScheme>
+                <cbc:ID>1000</cbc:ID>
+                <cbc:Name>IGV</cbc:Name>
+                <cbc:TaxTypeCode>VAT</cbc:TaxTypeCode>
+            </cac:TaxScheme>
+          #end
         </cac:TaxCategory>
       </cac:TaxSubtotal>
     </cac:TaxTotal>

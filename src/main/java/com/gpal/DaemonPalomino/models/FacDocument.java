@@ -35,5 +35,7 @@ public class FacDocument extends GenericDocument {
     private BigDecimal TaxAmount;
     private BigDecimal PayableAmount;
     private String Description;
+    private String Afecto;
+    private String FechaCreditDueDate;
 
 }

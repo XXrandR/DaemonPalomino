@@ -22,5 +22,6 @@ public class NcdDocument extends GenericDocument {
     private String CompanyID;
     private String CompanyName;
     private String DocumentTypeId;
+    private String PayableAmount;
 
 }

@@ -77,6 +77,7 @@ openssl pkcs12 -in exp-palomino.p12 -nocerts -nodes -out private.pem
 ```bash
 cat certificate.pem private.pem > combined.pem
 ```
+
 # then validate
 ```bash
 openssl x509 -noout -text -in combined.pem

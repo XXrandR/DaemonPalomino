@@ -24,7 +24,7 @@ public class FirmDocument {
 
             // firm the document
             XmlSec documnt = new XmlSec();
-            var item1 = documnt.firmDocument(item);
+            GenericDocument item1 = documnt.firmDocument(item);
 
             // save the status on DB
             DataUtil.executeProcedure(dataSource, "EXEC SP_OBT_DOCU_I01 ?,?,?,?,?,?",

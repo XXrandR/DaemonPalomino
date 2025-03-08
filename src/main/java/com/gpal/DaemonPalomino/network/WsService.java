@@ -41,9 +41,10 @@ public class WsService {
         }
     }
 
+    // THROUGH NORMAL LIFECYCLE
     public BizlinksOSE putAuthentication(BizlinksOSE_Service service, GenericDocument document) {
-        String user = properties.getProperty("keys." + document.getCO_EMPR() + ".user");
-        String pass = properties.getProperty("keys." + document.getCO_EMPR() + ".pass");
+        String user = properties.getProperty("keys." + document.getCompanyID() + ".user");
+        String pass = properties.getProperty("keys." + document.getCompanyID() + ".pass");
         log.info("The User: {} and Pass: {}", user, pass);
         service.setHandlerResolver(new HandlerResolver() {
             @SuppressWarnings("rawtypes")
@@ -57,9 +58,8 @@ public class WsService {
         return bService.getBizlinksOSEPort();
     }
 
+    // DIRECT CDR
     public BizlinksOSE putAuthentication(BizlinksOSE_Service service, String user, String pass) {
-        //String user = properties.getProperty("keys." + document.getCO_EMPR() + ".user");
-        //String pass = properties.getProperty("keys." + document.getCO_EMPR() + ".pass");
         log.info("The User: {} and Pass: {}", user, pass);
         service.setHandlerResolver(new HandlerResolver() {
             @SuppressWarnings("rawtypes")
@@ -84,22 +84,24 @@ public class WsService {
         return document;
     }
 
+    // for the lifecycle complete
     public GenericDocument getStatusCdr(GenericDocument document) throws SOAPException_Exception {
         bislinksOse = putAuthentication(bService, document);
         StatusCdr status = new StatusCdr();
         log.info("Document to cdr: Ruc {}, Numero {}, Tipo {}, Serie {}", DataUtil.obtainCompanyId(document),
-                document.getNU_DOCU().substring(5, document.getNU_DOCU().length()),
-                document.getTI_DOCU() != "BOL" ? "03" : "01",
+                String.valueOf(Integer.valueOf(document.getNU_DOCU().substring(5, document.getNU_DOCU().length()))),
+                document.getTI_DOCU().equals("BOL") ? "03" : "01",
                 document.getNU_DOCU().substring(0, 4));
         status.setRucComprobante(DataUtil.obtainCompanyId(document));
-        status.setNumeroComprobante(document.getNU_DOCU().substring(5, document.getNU_DOCU().length()));
-        status.setTipoComprobante(document.getTI_DOCU() != "BOL" ? "03" : "01");
+        status.setNumeroComprobante(String.valueOf(Integer.valueOf(document.getNU_DOCU().substring(5, document.getNU_DOCU().length()))));
+        status.setTipoComprobante(document.getTI_DOCU().equals("BOL") ? "03" : "01");
         status.setSerieComprobante(document.getNU_DOCU().substring(0, 4));
         byte[] data = bislinksOse.getStatusCdr(status);
         DataUtil.unzipFiles(documentsCdr + "/cdr/", data);
         return document;
     }
 
+    // for only CDR
     public boolean getStatusCdr(String co_seri, String nu_docu, String ti_docu, String co_empr) throws SOAPException_Exception {
         String user = properties.getProperty("keys." + co_empr + ".user");
         String pass = properties.getProperty("keys." + co_empr + ".pass");
@@ -120,6 +122,8 @@ public class WsService {
         bislinksOse.getStatus("");
         return true;
     }
+    
+    // Don't fckn remove this part it's for summaries
 
     // public void sendDocuments(String pathBase, List<FirmSignature> lSignatures) {
     // try {

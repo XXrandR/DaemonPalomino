@@ -64,24 +64,29 @@ java -jar target/DaemonPalomino-ALPHA1-jar-with-dependencies.jar SERVER 5 1 1 1 
 
 ## From .p12 into an .pem file
 ```bash
-keytool -importkeystore -srckeystore <keystore.jks> -destkeystore <keystore.p12> -srcstoretype JKS -deststoretype PKCS12
-openssl pkcs12 -in exp-palomino.p12 -nokeys -out exp-palomino.pem
+keytool -importkeystore -srckeystore key.jks -destkeystore key.p12 -srcstoretype JKS -deststoretype PKCS12
+openssl pkcs12 -in key.p12 -nokeys -out certificate.pem
 ```
 
 # in this part only let the cert of palomino and delete the rest
 ```bash
-openssl pkcs12 -in exp-palomino.p12 -nocerts -nodes -out private.pem
+openssl pkcs12 -in key.p12 -nocerts -nodes -out private.pem
 ```
 
 # join the previous two in one .pem file using
 ```bash
-cat certificate.pem private.pem > combined.pem
+cat certificate.pem private.pem > key.pem
 ```
 
 # then validate
 ```bash
-openssl x509 -noout -text -in combined.pem
-openssl rsa -check -noout -in combined.pem
+openssl x509 -noout -text -in key.pem
+openssl rsa -check -noout -in key.pem
+```
+
+# if all it's correct
+```bash
+rm -rf *.p12 certificate.pem private.pem
 ```
 
 # FOR SSH CONFIG

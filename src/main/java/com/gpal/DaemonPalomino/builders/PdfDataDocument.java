@@ -48,7 +48,7 @@ public class PdfDataDocument {
         return genericDocument.stream().map(item -> {
             log.info("PDF: {}, document, {}", basePath, item.getNU_DOCU());
             if (item instanceof FacDocument item1) {
-                assemblePdf(createDtoFac(item1),
+                assemblePdf(createDtoFac(dataSource, item1),
                         basePath + DataUtil.obtainNameByTypeDocumentNotXml(item1) + ".pdf", "pdf_template.vm");
             } else if (item instanceof BolDocument item1) {
                 assemblePdf(createDtoBol(dataSource, item1),
@@ -125,8 +125,62 @@ public class PdfDataDocument {
                 .documents(List.of(dt.build())).build();
     }
 
-    private DataPdfDocument createDtoFac(FacDocument item1) {
-        return DataPdfDocument.builder().build();
+    private DataPdfDocument createDtoFac(DataSource dataSource, FacDocument item1) {
+        DetBolPdfDocumentBuilder dt = DetBolPdfDocument.builder();
+        dt.cant("1");
+        dt.noUnid("NIU");
+        dt.description(item1.getDescription());
+        dt.model("");
+        dt.lote("");
+        dt.serie("");
+        dt.priceUnit(String.valueOf(item1.getPayableAmount()));
+        dt.dto("");
+        dt.total(String.valueOf(item1.getPayableAmount()));
+
+        byte[] arg3 = assembleQr(item1.getCompanyID() + "|01|" + item1.getSeries() + "|" + item1.getNumber()
+                + "|0.00|" + item1.getDueDate() + "|" + item1.getTI_DOCU() + "|"
+                + item1.getCustomerId() + "|"
+                + item1.getDigestValue() + "|"
+                + item1.getPayableAmount() + "|" + item1.getDigestValue() + "|" + item1.getSignatureValue(),
+                300, 300).getBytes();
+
+        byte[] arg2 = assembleBarCode(item1.getCompanyID() + "|01|" + item1.getSeries() + "|" + item1.getNumber()
+                + "|0.00|" + item1.getDueDate() + "|" + item1.getTI_DOCU() + "|"
+                + item1.getCustomerId() + "|"
+                + item1.getDigestValue() + "|"
+                + item1.getPayableAmount() + "|" + item1.getDigestValue() + "|" + item1.getSignatureValue(),
+                300, 300).getBytes();
+
+        DataUtil.executeProcedure(dataSource, "EXEC SP_VFACTURACION_I01 ?,?,?,?,?,?,?,?",
+                List.of(arg2, arg2, arg3, item1.getDigestValue(), item1.getNU_DOCU(), item1.getTI_DOCU(),
+                        item1.getCO_EMPR(), item1.getCO_ORIG()),
+                PendingDocument.class);
+
+        return DataPdfDocument.builder()
+                .nuDocu(item1.getSeries() + "-" + item1.getNumber())
+                .businessName(item1.getCompanyName())
+                .businessID(item1.getCompanyID())
+                .tiDocu("BOL")
+                .direction(item1.getEstablishmentDepartamentName() + " " + item1.getEstablishmentDistrictName())
+                .centTelf("")
+                .dateEmition(item1.getIssueDate())
+                .dateVenc(item1.getDueDate())
+                .datClie(item1.getCustomerName())
+                .docuClie(item1.getCustomerId())
+                .directionClie("")
+                .opExoneradas(String.valueOf(item1.getPayableAmount()))
+                .igvAmount(String.valueOf(item1.getTaxAmount()))
+                .totaPag(String.valueOf(item1.getPayableAmount()))
+                .totaPagLetters(item1.getAmountInLetters())
+                .codHash(item1.getDigestValue())
+                .condPag("")
+                .qrBase64(assembleQr(item1.getCompanyID() + "|01|" + item1.getSeries() + "|" + item1.getNumber()
+                        + "|0.00|" + item1.getDueDate() + "|" + item1.getTI_DOCU() + "|"
+                        + item1.getCustomerId() + "|"
+                        + item1.getDigestValue() + "|"
+                        + item1.getPayableAmount() + "|" + item1.getDigestValue() + "|" + item1.getSignatureValue(),
+                        300, 300))
+                .documents(List.of(dt.build())).build();
     }
 
     private DataPdfDocument createDtoNcr(NcrDocument item1) {

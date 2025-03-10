@@ -34,7 +34,6 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import com.gpal.DaemonPalomino.models.firm.FirmSignature;
 import com.gpal.DaemonPalomino.models.generic.GenericDocument;
 import com.gpal.DaemonPalomino.utils.DataUtil;
 import com.gpal.DaemonPalomino.utils.PropertiesHelper;
@@ -63,9 +62,8 @@ public class XmlSec {
             String certificatePathBase;
             String certificatePathFile;
             certificatePathBase = properties.getProperty("location.firms");
-            certificatePathFile = properties
-                    .getProperty("name." + ((GenericDocument) sDocument).getCO_EMPR() + ".certificate");
-            if (certificatePathFile == null) {
+            certificatePathFile = sDocument.getCompanyID() + "/" + "key.pem";
+            if (certificatePathBase == null) {
                 throw new RuntimeException("Error in loading keys in firm..");
             }
             log.info("Searching the PEM file.. {}", certificatePathBase + certificatePathFile);

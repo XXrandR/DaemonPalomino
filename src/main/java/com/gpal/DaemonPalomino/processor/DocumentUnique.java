@@ -70,22 +70,21 @@ public class DocumentUnique {
         List<GenericDocument> documentsPending2 = pdfDocument.generatePdfDocument(dataSource, documentsPending1,
                 locationDocuments + "/pdf/");
 
-        // to not wait for these processes that are basically optional because can be reprocessed by the backround thread
-        ASYNC_EXECUTOR.submit(() -> {
-            try {
-                // send bizlinks data
-                List<GenericDocument> documentsPending3 = documentSender.sendDocument(documentsPending2);
-
-                // send resources to server
-                if (!ftpRemote.saveData(documentsPending3).isEmpty()) {
-                    log.info("Successfully processed");
-                } else {
-                    log.info("Empty list to send..");
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
+        //// to not wait for these processes that are basically optional because can be reprocessed by the backround thread
+        //ASYNC_EXECUTOR.submit(() -> {
+        //    try {
+        //        // send bizlinks data
+        //        List<GenericDocument> documentsPending3 = documentSender.sendDocument(documentsPending2);
+        //        // send resources to server
+        //        if (!ftpRemote.saveData(documentsPending3).isEmpty()) {
+        //            log.info("Successfully processed");
+        //        } else {
+        //            log.info("Empty list to send..");
+        //        }
+        //    } catch (Exception ex) {
+        //        ex.printStackTrace();
+        //    }
+        //});
 
         return documentsPending2;
 

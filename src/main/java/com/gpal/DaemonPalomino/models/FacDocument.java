@@ -20,6 +20,7 @@ public class FacDocument extends GenericDocument {
     private String IssueTime;
     private String DueDate;
     private String AmountInLetters;
+    private String CurrencyCode;
     private String CompanyID;
     private String CompanyName;
     private String DocumentTypeId;
@@ -37,5 +38,8 @@ public class FacDocument extends GenericDocument {
     private String Description;
     private String Afecto;
     private String FechaCreditDueDate;
+    private String Detraccion;
+    private String PercentDetraccion;
+    private String AmountDetraccion;
 
 }

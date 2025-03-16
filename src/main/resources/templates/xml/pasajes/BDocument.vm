@@ -91,12 +91,16 @@
       <cbc:TaxAmount currencyID="PEN">$document.TaxAmount</cbc:TaxAmount>
       <cac:TaxCategory>
           #if ($document.Afecto == "N")
+              <cbc:Percent>0</cbc:Percent>
+              <cbc:TaxExemptionReasonCode>20</cbc:TaxExemptionReasonCode>
               <cac:TaxScheme>
                 <cbc:ID>9997</cbc:ID>
                 <cbc:Name>EXO</cbc:Name>
                 <cbc:TaxTypeCode>VAT</cbc:TaxTypeCode>
               </cac:TaxScheme>
           #else if($document.Afecto == "S")
+            <cbc:Percent>18.00</cbc:Percent>
+            <cbc:TaxExemptionReasonCode listAgencyName="PE:SUNAT" listName="Afectacion del IGV" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo07">10</cbc:TaxExemptionReasonCode>
             <cac:TaxScheme>
                 <cbc:ID>1000</cbc:ID>
                 <cbc:Name>IGV</cbc:Name>

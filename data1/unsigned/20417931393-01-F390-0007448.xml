@@ -8,25 +8,24 @@
   	</ext:UBLExtensions>
   <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
   <cbc:CustomizationID>2.0</cbc:CustomizationID>
-  <cbc:ProfileID schemeAgencyName="PE:SUNAT" schemeID="6" schemeName="SUNAT:Identificador de Tipo de Operación" schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo17">1001</cbc:ProfileID>
-  <cbc:ID>$document.NuDocu</cbc:ID>
-  <cbc:IssueDate>$document.IssueDate</cbc:IssueDate>
-  <cbc:IssueTime>$document.IssueTime</cbc:IssueTime>
-  <cbc:DueDate>$document.DueDate</cbc:DueDate>
+  <cbc:ID>F390-0007448</cbc:ID>
+  <cbc:IssueDate>2025-03-10</cbc:IssueDate>
+  <cbc:IssueTime>00:00:00.000</cbc:IssueTime>
+  <cbc:DueDate>2025-03-10</cbc:DueDate>
   <cbc:InvoiceTypeCode listID="0101">01</cbc:InvoiceTypeCode>
-  <cbc:Note languageLocaleID="1000"><![CDATA[$document.AmountInLetters]]></cbc:Note>
-  #if ($document.Detraccion == "S")
+  <cbc:Note languageLocaleID="1000"><![CDATA[Dos mil novecientos cincuenta y uno con 07/100]]></cbc:Note>
+
     <cbc:Note languageLocaleID="2006">
     <![CDATA[ Operación sujeta a detracción ]]>
     </cbc:Note>
-  #end
-  <cbc:DocumentCurrencyCode>$document.CurrencyCode</cbc:DocumentCurrencyCode>
+
+  <cbc:DocumentCurrencyCode>PEN</cbc:DocumentCurrencyCode>
   <cac:Signature>
     <cbc:ID>signaturePALOMINO</cbc:ID>
     <cbc:Note>PALOMINO</cbc:Note>
     <cac:SignatoryParty>
       <cac:PartyIdentification>
-        <cbc:ID>$document.CompanyID</cbc:ID>
+        <cbc:ID>20417931393</cbc:ID>
       </cac:PartyIdentification>
       <cac:PartyName>
         <cbc:Name><![CDATA[TURISMO INTERNACIONAL PALOMINO S.A.C.]]></cbc:Name>
@@ -41,21 +40,21 @@
   <cac:AccountingSupplierParty>
     <cac:Party>
       <cac:PartyIdentification>
-        <cbc:ID schemeID="6">$document.CompanyID</cbc:ID>
+        <cbc:ID schemeID="6">20417931393</cbc:ID>
       </cac:PartyIdentification>
       <cac:PartyName>
-        <cbc:Name><![CDATA[$document.CompanyName]]></cbc:Name>
+        <cbc:Name><![CDATA[EXPRESO INTERNACIONAL PALOMINO S.A.C]]></cbc:Name>
       </cac:PartyName>
       <cac:PartyLegalEntity>
-        <cbc:RegistrationName><![CDATA[$document.CompanyName]]></cbc:RegistrationName>
+        <cbc:RegistrationName><![CDATA[EXPRESO INTERNACIONAL PALOMINO S.A.C]]></cbc:RegistrationName>
         <cac:RegistrationAddress>
-          <cbc:ID>$document.EstablishmentUbigeo</cbc:ID>
-          <cbc:AddressTypeCode>$document.EstablishmentAnnexCode</cbc:AddressTypeCode>
-          <cbc:CityName>$document.EstablishmentProvinceName</cbc:CityName>
-          <cbc:CountrySubentity>$document.EstablishmentDepartamentName</cbc:CountrySubentity>
-          <cbc:District>$document.EstablishmentDistrictName</cbc:District>
+          <cbc:ID>150115</cbc:ID>
+          <cbc:AddressTypeCode>0003</cbc:AddressTypeCode>
+          <cbc:CityName>Lima </cbc:CityName>
+          <cbc:CountrySubentity>LIMA</cbc:CountrySubentity>
+          <cbc:District>La Victoria</cbc:District>
           <cac:AddressLine>
-            <cbc:Line><![CDATA[$document.EstablishmentAddress]]></cbc:Line>
+            <cbc:Line><![CDATA[AV. NICOLAS ARRIOLA NRO. 906 (NICOLAS ARROLA) LIMA - LIMA - LA VICTORIA]]></cbc:Line>
           </cac:AddressLine>
           <cac:Country>
             <cbc:IdentificationCode>PE</cbc:IdentificationCode>
@@ -71,61 +70,46 @@
   <cac:AccountingCustomerParty>
     <cac:Party>
       <cac:PartyIdentification>
-        <cbc:ID schemeID="6">$document.CustomerId</cbc:ID>
+        <cbc:ID schemeID="6">20552714378</cbc:ID>
       </cac:PartyIdentification>
       <cac:PartyLegalEntity>
-        <cbc:RegistrationName><![CDATA[$document.CustomerName]]></cbc:RegistrationName>
+        <cbc:RegistrationName><![CDATA[COSAPI MINERIA S.A.C.                             ]]></cbc:RegistrationName>
       </cac:PartyLegalEntity>
     </cac:Party>
   </cac:AccountingCustomerParty>
-  #if ($document.Detraccion == "S")
+
     <cac:PaymentMeans>
         <cbc:ID>Detraccion</cbc:ID>
         <cbc:PaymentMeansCode listAgencyName="PE:SUNAT" listName="Medio de pago" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo59">001</cbc:PaymentMeansCode>
         <cac:PayeeFinancialAccount>
-        <cbc:ID>$document.BankAccountDetraction</cbc:ID>
+        <cbc:ID>00005066646</cbc:ID>
         </cac:PayeeFinancialAccount>
     </cac:PaymentMeans>
     <cac:PaymentTerms>
         <cbc:ID>Detraccion</cbc:ID>
         <cbc:PaymentMeansID schemeAgencyName="" schemeName="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo54" schemeURI="">CodMotivoDetraccion</cbc:PaymentMeansID>
-        <cbc:PaymentPercent>$document.PercentDetraccion</cbc:PaymentPercent>
-        <cbc:Amount currencyID="PEN">$document.AmountDetraccion</cbc:Amount>
+        <cbc:PaymentPercent>0</cbc:PaymentPercent>
+        <cbc:Amount currencyID="PEN">0</cbc:Amount>
     </cac:PaymentTerms>
-  #end
-  #if ($document.PaymentConditionId == "01")
-  <cac:PaymentTerms>
-    <cbc:ID>FormaPago</cbc:ID>
-    <cbc:PaymentMeansID>Contado</cbc:PaymentMeansID>
-  </cac:PaymentTerms>
-  #elseif ($document.PaymentConditionId == "02")
+
     <cac:PaymentTerms>
         <cbc:ID>FormaPago</cbc:ID>
         <cbc:PaymentMeansID>Credito</cbc:PaymentMeansID>
-        <cbc:Amount currencyID="$document.CurrencyCode">$document.PayableAmount</cbc:Amount>
+        <cbc:Amount currencyID="PEN">2951.07</cbc:Amount>
     </cac:PaymentTerms>
     <cac:PaymentTerms>
         <cbc:ID>FormaPago</cbc:ID>
         <cbc:PaymentMeansID>Cuota001</cbc:PaymentMeansID>
-        <cbc:Amount currencyID="$document.CurrencyCode">$document.PayableAmount</cbc:Amount>
-        <cbc:PaymentDueDate>$document.FechaCreditDueDate</cbc:PaymentDueDate>
+        <cbc:Amount currencyID="PEN">2951.07</cbc:Amount>
+        <cbc:PaymentDueDate>2025-03-11</cbc:PaymentDueDate>
     </cac:PaymentTerms>
-  #end
+
   <cac:TaxTotal>
-    <cbc:TaxAmount currencyID="$document.CurrencyCode">$document.TaxAmount</cbc:TaxAmount>
+    <cbc:TaxAmount currencyID="PEN">531.1926</cbc:TaxAmount>
     <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="$document.CurrencyCode">$document.PayableAmount</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="$document.CurrencyCode">$document.TaxAmount</cbc:TaxAmount>
+      <cbc:TaxableAmount currencyID="PEN">2951.07</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="PEN">531.1926</cbc:TaxAmount>
       <cac:TaxCategory>
-        #if ($document.Afecto == "N")
-          <cbc:Percent>0</cbc:Percent>
-          <cbc:TaxExemptionReasonCode>20</cbc:TaxExemptionReasonCode>
-          <cac:TaxScheme>
-            <cbc:ID>9997</cbc:ID>
-            <cbc:Name>EXO</cbc:Name>
-            <cbc:TaxTypeCode>VAT</cbc:TaxTypeCode>
-          </cac:TaxScheme>
-        #elseif ($document.Afecto == "S")
             <cbc:Percent>18.00</cbc:Percent>
             <cbc:TaxExemptionReasonCode listAgencyName="PE:SUNAT" listName="Afectacion del IGV" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo07">10</cbc:TaxExemptionReasonCode>
             <cac:TaxScheme>
@@ -133,59 +117,48 @@
                 <cbc:Name>IGV</cbc:Name>
                 <cbc:TaxTypeCode>VAT</cbc:TaxTypeCode>
             </cac:TaxScheme>
-        #end
       </cac:TaxCategory>
     </cac:TaxSubtotal>
   </cac:TaxTotal>
   <cac:LegalMonetaryTotal>
-    <cbc:LineExtensionAmount currencyID="$document.CurrencyCode">$document.PayableAmount</cbc:LineExtensionAmount>
-    <cbc:TaxInclusiveAmount currencyID="$document.CurrencyCode">$document.PayableAmount</cbc:TaxInclusiveAmount>
-    <cbc:PayableAmount currencyID="$document.CurrencyCode">$document.PayableAmount</cbc:PayableAmount>
+    <cbc:LineExtensionAmount currencyID="PEN">2951.07</cbc:LineExtensionAmount>
+    <cbc:TaxInclusiveAmount currencyID="PEN">2951.07</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="PEN">2951.07</cbc:PayableAmount>
   </cac:LegalMonetaryTotal>
   <cac:InvoiceLine>
     <cbc:ID>1</cbc:ID>
     <cbc:InvoicedQuantity unitCode="NIU">1.0000</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="$document.CurrencyCode">$document.PayableAmount</cbc:LineExtensionAmount>
+    <cbc:LineExtensionAmount currencyID="PEN">2951.07</cbc:LineExtensionAmount>
     <cac:PricingReference>
       <cac:AlternativeConditionPrice>
-        <cbc:PriceAmount currencyID="$document.CurrencyCode">$document.PayableAmount</cbc:PriceAmount>
+        <cbc:PriceAmount currencyID="PEN">2951.07</cbc:PriceAmount>
         <cbc:PriceTypeCode>01</cbc:PriceTypeCode>
       </cac:AlternativeConditionPrice>
     </cac:PricingReference>
     <cac:TaxTotal>
-      <cbc:TaxAmount currencyID="$document.CurrencyCode">0.00</cbc:TaxAmount>
+      <cbc:TaxAmount currencyID="PEN">0.00</cbc:TaxAmount>
       <cac:TaxSubtotal>
-        <cbc:TaxableAmount currencyID="$document.CurrencyCode">$document.PayableAmount</cbc:TaxableAmount>
-        <cbc:TaxAmount currencyID="$document.CurrencyCode">0.00</cbc:TaxAmount>
+        <cbc:TaxableAmount currencyID="PEN">2951.07</cbc:TaxableAmount>
+        <cbc:TaxAmount currencyID="PEN">0.00</cbc:TaxAmount>
         <cac:TaxCategory>
-            #if ($document.Afecto == "N")
-              <cbc:Percent>0</cbc:Percent>
-              <cbc:TaxExemptionReasonCode>20</cbc:TaxExemptionReasonCode>
-              <cac:TaxScheme>
-                <cbc:ID>9997</cbc:ID>
-                <cbc:Name>EXO</cbc:Name>
-                <cbc:TaxTypeCode>VAT</cbc:TaxTypeCode>
-              </cac:TaxScheme>
-            #elseif($document.Afecto == "S")
             <cbc:Percent>18.00</cbc:Percent>
-            <cbc:TaxExemptionReasonCode listAgencyName="PE:SUNAT" listName="Afectacion del IGV" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo07">10</cbc:TaxExemptionReasonCode>
+            <cbc:TaxExemptionReasonCode>20</cbc:TaxExemptionReasonCode>
             <cac:TaxScheme>
                 <cbc:ID>1000</cbc:ID>
                 <cbc:Name>IGV</cbc:Name>
                 <cbc:TaxTypeCode>VAT</cbc:TaxTypeCode>
             </cac:TaxScheme>
-            #end
         </cac:TaxCategory>
       </cac:TaxSubtotal>
     </cac:TaxTotal>
     <cac:Item>
-      <cbc:Description><![CDATA[$document.DescriptionFact]]></cbc:Description>
+      <cbc:Description><![CDATA[OPERACION SUJETA AL SPOT(12%)037:DEMAS SERV.GRAVADOS CON IGV CTA BCO DE LA NACION:00-005-066646.]]></cbc:Description>
       <cac:SellersItemIdentification>
         <cbc:ID>t001</cbc:ID>
       </cac:SellersItemIdentification>
     </cac:Item>
     <cac:Price>
-      <cbc:PriceAmount currencyID="$document.CurrencyCode">$document.PayableAmount</cbc:PriceAmount>
+      <cbc:PriceAmount currencyID="PEN">2951.07</cbc:PriceAmount>
     </cac:Price>
   </cac:InvoiceLine>
 </Invoice>

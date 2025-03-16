@@ -70,7 +70,7 @@ public class DocumentUnique {
         List<GenericDocument> documentsPending2 = pdfDocument.generatePdfDocument(dataSource, documentsPending1,
                 locationDocuments + "/pdf/");
 
-        //// to not wait for these processes that are basically optional because can be reprocessed by the backround thread
+        // to not wait for these processes that are basically optional because can be reprocessed by the backround thread
         //ASYNC_EXECUTOR.submit(() -> {
         //    try {
         //        // send bizlinks data
@@ -78,6 +78,7 @@ public class DocumentUnique {
         //        // send resources to server
         //        if (!ftpRemote.saveData(documentsPending3).isEmpty()) {
         //            log.info("Successfully processed");
+        //            System.exit(0);
         //        } else {
         //            log.info("Empty list to send..");
         //        }

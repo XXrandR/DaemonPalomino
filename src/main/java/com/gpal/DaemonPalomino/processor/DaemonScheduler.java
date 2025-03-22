@@ -2,7 +2,6 @@ package com.gpal.DaemonPalomino.processor;
 
 import com.gpal.DaemonPalomino.models.generic.GenericDocument;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;

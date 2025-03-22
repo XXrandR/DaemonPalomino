@@ -20,7 +20,6 @@ public class FacDocument extends GenericDocument {
     private String IssueTime;
     private String DueDate;
     private String AmountInLetters;
-    private String Afecto;
     private String CurrencyCode;
     private String CompanyID;
     private String CompanyName;
@@ -37,14 +36,16 @@ public class FacDocument extends GenericDocument {
     private BigDecimal TaxAmount;
     private BigDecimal TotalAmount;
     private BigDecimal PayableAmount;
+    private BigDecimal ImPaga;
     private String Description;
+    private String AfectoIgv;
     private String FechaCreditDueDate;
     private String Detraccion;
     private String BankAccountDetraction;
     private Integer PercentDetraccion;
     private BigDecimal AmountDetraccion;
-    //https://docs.factpro.la/catalogo-54-codigos-de-bienes-y-servicios-sujetos-a-detracciones
-    private Integer CodMotivoDetraccion;
+    // https://docs.factpro.la/catalogo-54-codigos-de-bienes-y-servicios-sujetos-a-detracciones
+    private String CodMotivoDetraccion;
     private String DescriptionFact;
 
 }

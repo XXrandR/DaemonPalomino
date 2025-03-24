@@ -55,7 +55,8 @@ public class DocumentUnique {
         return documentSender.downloadCdr(co_seri, nu_docu, ti_docu, co_empr);
     }
 
-    public List<GenericDocument> assembleLifecycle(String NU_DOCU, String TI_DOCU, String CO_EMPR, String tiOper) {
+    public List<GenericDocument> assembleLifecycle(Boolean isServer, String NU_DOCU, String TI_DOCU, String CO_EMPR,
+            String tiOper) {
 
         log.info("Processing document {},{},{}.", NU_DOCU, TI_DOCU, CO_EMPR);
 
@@ -70,22 +71,26 @@ public class DocumentUnique {
         List<GenericDocument> documentsPending2 = pdfDocument.generatePdfDocument(dataSource, documentsPending1,
                 locationDocuments + "/pdf/");
 
-        // to not wait for these processes that are basically optional because can be reprocessed by the backround thread
-        //ASYNC_EXECUTOR.submit(() -> {
-        //    try {
-        //        // send bizlinks data
-        //        List<GenericDocument> documentsPending3 = documentSender.sendDocument(documentsPending2);
-        //        // send resources to server
-        //        if (!ftpRemote.saveData(documentsPending3).isEmpty()) {
-        //            log.info("Successfully processed");
-        //            System.exit(0);
-        //        } else {
-        //            log.info("Empty list to send..");
-        //        }
-        //    } catch (Exception ex) {
-        //        ex.printStackTrace();
-        //    }
-        //});
+        // to not wait for these processes that are basically optional because can be
+        // reprocessed by the backround thread
+        ASYNC_EXECUTOR.submit(() -> {
+            try {
+                // send bizlinks data
+                List<GenericDocument> documentsPending3 = documentSender.sendDocument(documentsPending2);
+                log.info("Successfully sended to bizlinks.");
+                // send resources to server
+                if (!ftpRemote.saveData(documentsPending3).isEmpty()) {
+                    // if (true) {
+                    log.info("Successfully processed");
+                    if (!isServer)
+                        System.exit(0);
+                } else {
+                    log.info("Empty list to send..");
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
 
         return documentsPending2;
 

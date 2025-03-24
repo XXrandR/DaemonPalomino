@@ -48,6 +48,7 @@
       </cac:PartyName>
       <cac:PartyLegalEntity>
         <cbc:RegistrationName><![CDATA[$document.CompanyName]]></cbc:RegistrationName>
+    #if($document.FacTeso == "N")
         <cac:RegistrationAddress>
           <cbc:ID>$document.EstablishmentUbigeo</cbc:ID>
           <cbc:AddressTypeCode>$document.EstablishmentAnnexCode</cbc:AddressTypeCode>
@@ -61,6 +62,11 @@
             <cbc:IdentificationCode>PE</cbc:IdentificationCode>
           </cac:Country>
         </cac:RegistrationAddress>
+    #elseif ($document.FacTeso == "S")
+        <cac:RegistrationAddress>
+            <cbc:AddressTypeCode>0000</cbc:AddressTypeCode>
+        </cac:RegistrationAddress>
+    #end
       </cac:PartyLegalEntity>
       <cac:Contact>
         <cbc:Telephone>.</cbc:Telephone>
@@ -118,7 +124,7 @@
       <cbc:TaxAmount currencyID="$document.CurrencyCode">$document.TaxAmount</cbc:TaxAmount>
       <cac:TaxCategory>
         #if ($document.AfectoIgv == "N")
-          <cbc:Percent>0</cbc:Percent>
+          <cbc:Percent>18.00</cbc:Percent>
           <cbc:TaxExemptionReasonCode>20</cbc:TaxExemptionReasonCode>
           <cac:TaxScheme>
             <cbc:ID>9997</cbc:ID>
@@ -159,7 +165,7 @@
         <cbc:TaxAmount currencyID="$document.CurrencyCode">$document.TaxAmount</cbc:TaxAmount>
         <cac:TaxCategory>
             #if ($document.AfectoIgv == "N")
-              <cbc:Percent>0</cbc:Percent>
+              <cbc:Percent>18.00</cbc:Percent>
               <cbc:TaxExemptionReasonCode>20</cbc:TaxExemptionReasonCode>
               <cac:TaxScheme>
                 <cbc:ID>9997</cbc:ID>
@@ -181,6 +187,11 @@
     </cac:TaxTotal>
     <cac:Item>
       <cbc:Description><![CDATA[$document.DescriptionFact]]></cbc:Description>
+      #if($document.FacTeso == "N")
+      <cac:SellersItemIdentification>
+      <cbc:ID>E001</cbc:ID>
+      </cac:SellersItemIdentification>
+      #end
     </cac:Item>
     <cac:Price>
       <cbc:PriceAmount currencyID="$document.CurrencyCode">$document.PayableAmount</cbc:PriceAmount>

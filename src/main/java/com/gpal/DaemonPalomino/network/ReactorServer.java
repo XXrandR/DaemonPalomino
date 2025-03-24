@@ -100,6 +100,7 @@ public class ReactorServer {
                         Map<String, Object> response = new LinkedHashMap<>();
                         List<GenericDocument> genericDocument = tuple.stream()
                                 .map(item -> documentUnique.assembleLifecycle(
+                                        true, // SERVER MODE to not STOP
                                         item.getNU_DOCU(),
                                         item.getTI_DOCU(),
                                         item.getCO_EMPR(),
@@ -127,9 +128,18 @@ public class ReactorServer {
                             return Mono.error(e);
                         }
                     });
-        }).onErrorMap(data -> {
+        }).onErrorResume(data -> {
             data.printStackTrace();
-            return data;
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("pdf", "NotFound");
+            response.put("qr", "NotFound");
+            response.put("hash", "NotFound");
+            response.put("detail", "not found or already sended.");
+            try {
+                return Mono.just(objectMapper.writeValueAsString(response));
+            } catch (JsonProcessingException e) {
+                return Mono.error(e);
+            }
         });
     }
 

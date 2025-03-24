@@ -30,6 +30,7 @@ public class FacDocument extends GenericDocument {
     private String EstablishmentDepartamentName;
     private String EstablishmentDistrictName;
     private String EstablishmentAddress;
+    private String FacTeso;
     private String CustomerId;
     private String CustomerName;
     private String PaymentConditionId;

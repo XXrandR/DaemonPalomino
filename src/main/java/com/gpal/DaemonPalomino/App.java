@@ -130,7 +130,8 @@ public class App {
             String nu_docu = String.valueOf(args[1]);
             String ti_docu = String.valueOf(args[2]);
             String co_empr = String.valueOf(args[3]);
-            coreComp.documentUnique().assembleLifecycle(nu_docu, ti_docu, co_empr, null);
+            coreComp.documentUnique().assembleLifecycle(false, // CMD MODE TO STOP AFTER EXECUTION
+                    nu_docu, ti_docu, co_empr, null);
             log.info("Document sending process finished successfully.");
         } catch (Exception ex) {
             log.error("Invalid number format in arguments. Please provide integer values.");

@@ -16,6 +16,7 @@ import com.gpal.DaemonPalomino.osebizlinks.wsdl.SOAPException_Exception;
 import com.gpal.DaemonPalomino.utils.DataUtil;
 import com.gpal.DaemonPalomino.utils.PropertiesHelper;
 import lombok.extern.slf4j.Slf4j;
+import com.sun.xml.ws.fault.ServerSOAPFaultException;
 
 @Slf4j
 public class DocumentSender {
@@ -44,7 +45,7 @@ public class DocumentSender {
         try {
             wsService.getStatusCdr(co_seri, String.valueOf(Integer.valueOf(nu_docu)), ti_docu, co_empr);
             return true;
-        } catch (SOAPException_Exception ex) {
+        } catch (SOAPException_Exception | ServerSOAPFaultException ex) {
             processError(ex, null);
             return false;
         }
@@ -65,14 +66,14 @@ public class DocumentSender {
                             object.getCO_ORIG()),
                     PendingDocument.class);
             return document1;
-        } catch (SOAPException_Exception ex) {
+        } catch (SOAPException_Exception | ServerSOAPFaultException ex) {
             processError(ex, object);
             return null;
         }
     }
 
     // In case of an error save into the server that error, register it
-    private void processError(SOAPException_Exception ex, GenericDocument document) {
+    private void processError(Exception ex, GenericDocument document) {
         Pattern pattern = Pattern.compile("\\b\\d{4}\\b");
         Matcher matcher = pattern.matcher(ex.getMessage());
         if (matcher.find()) {
